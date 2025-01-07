@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Search Results</title>
+  <style>
+    /* Style for the link */
+    .show-all-link {
+      position: absolute;
+      top: 10px; /* Adjust top position as needed */
+      right: 10px; /* Adjust right position as needed */
+    }
+    /* Card styling */
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 300px; /* Adjust card width as needed */
+    }
+  </style>
+</head>
+<body>
+  <a href="/all" class="show-all-link">Show All Entries</a>
+
+  <h1>Search Results</h1>
+
+  <form action="/search" method="GET">
+    <input type="text" name="query" placeholder="Enter search term">
+    <button type="submit">Search</button>
+  </form>
+
+  <% if (results.length === 0) { %>
+    <p>No results found.</p>
+  <% } else { %>
+    <div class="card-container">
+      <% results.forEach(result => { %>
+        <div class="card">
+          <h3><%= result.TITLE %></h3>
+          <p><strong>Title:</strong> <%= result.title %></p>
+          <p><strong>Subject:</strong> <%= result.subject %></p>
+          <p><strong>Lesson:</strong> <%= result.lesson %></p>
+          <p><strong>Timestamp:</strong> <%= result.timestamp %></p>          
+          <p><strong>Volume:</strong> <%= result.volume %></p>
+          <p><strong>Page:</strong> <%= result.page %></p>
+          <p><strong>Description:</strong> <%= result.description %></p>
+          <p><strong>Book Description:</strong> <%= result.book_description %></p>
+          <p><strong>Inventor:</strong> <%= result.inventor %></p>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <a href="/">Back to Search</a>
+</body>
+</html>
