@@ -1,0 +1,532 @@
+/* Style for the link */
+.show-all-link {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  
+  /* Card styling */
+  .card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    /* Add this line to make the container take full width */
+  }
+  
+  .card {
+    border: 1px solid #ccc;
+    /* Default border color */
+    padding: 20px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    display: block;
+    /* Added to ensure cards stack vertically */
+  }
+  
+  /* Subject-specific border colors */
+.card[data-subject="Introduction"] {
+  border-color: #f00;
+}
+
+.card[data-subject="Effective Card Mysteries"] {
+  border-color: #0f0;
+}
+
+.card[data-subject="Magic with Apparatus"] {
+  border-color: #00f;
+}
+
+.card[data-subject="Card Tricks with Coins"] {
+  border-color: #f0f;
+}
+
+.card[data-subject="Card Tricks with Handkerchiefs"] {
+  border-color: #0ff;
+}
+
+.card[data-subject="Card Tricks with Balls and Small Objects"] {
+  border-color: #ff0;
+}
+
+.card[data-subject="Silk Magic"] {
+  border-color: #800080;
+}
+
+.card[data-subject="Rope Magic"] {
+  border-color: #FFA500;
+}
+
+.card[data-subject="Stage Illusions"] {
+  border-color: #008080;
+}
+
+.card[data-subject="Mental Magic"] {
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Miscellaneous Magic"] {
+  border-color: #808080;
+}
+
+.card[data-subject="The Show"] {
+  border-color: #000000;
+}
+
+.card[data-subject="Business of Magic"] {
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="Childrens Magic"] {  /* Hyphen removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Mathematical Magic"] {
+  border-color: #800000;
+}
+
+.card[data-subject="Card Magic"] {
+  border-color: #00FF00;
+}
+
+.card[data-subject="Coin Magic"] {
+  border-color: #0000FF;
+}
+
+.card[data-subject="The Tarbell Course in Magic"] {
+  border-color: #FF0000;
+}
+
+.card[data-subject="Sleight of Hand"] {
+  border-color: #00FFFF;
+}
+
+.card[data-subject="History of Magic"] {
+  border-color: #FA8072;
+}
+
+.card[data-subject="Theory of Magic"] {
+  border-color: #800000;
+}
+
+.card[data-subject="Magic for the Home"] {
+  border-color: #008000;
+}
+
+.card[data-subject="Magic for the Club"] {
+  border-color: #000080;
+}
+
+.card[data-subject="Magic for the Stage"] {
+  border-color: #FF00FF;
+}
+
+.card[data-subject="Magic for the Street"] {
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Magic for the Close Up Performer"] {
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Magic for the Mentalist"] {
+  border-color: #FA8072;
+}
+
+.card[data-subject="Magic for the Childrens Performer"] {  /* Hyphen removed */
+  border-color: #800080;
+}
+
+.card[data-subject="Magic for the Comedian"] {
+  border-color: #FFA500;
+}
+
+.card[data-subject="Magic for the Magician"] {
+  border-color: #008080;
+}
+
+.card[data-subject="Magic for the Amateur"] {
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Magic for the Professional"] {
+  border-color: #808080;
+}
+
+.card[data-subject="Magic for the Beginner"] {  /* Hyphen removed */
+  border-color: #000000;
+}
+
+.card[data-subject="Magic for the Advanced Student"] {  /* Hyphen removed */
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="Magic for the Expert"] {  /* Hyphen removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Magic for the Teacher"] {  /* Hyphen removed */
+  border-color: #800000;
+}
+
+.card[data-subject="Magic for the Student"] {  /* Hyphen removed */
+  border-color: #00FF00;
+}
+
+.card[data-subject="Magic for the Performer"] {  /* Hyphen removed */
+  border-color: #0000FF;
+}
+
+.card[data-subject="Magic for the Collector"] {  /* Hyphen removed */
+  border-color: #FF0000;
+}
+
+.card[data-subject="Magic for the Hobbyist"] {  /* Hyphen removed */
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Magic for the Enthusiast"] {  /* Hyphen removed */
+  border-color: #FA8072;
+}
+
+.card[data-subject="Magic for the Public"] {  /* Hyphen removed */
+  border-color: #800080;
+}
+
+.card[data-subject="Magic for the Private Party"] {  /* Hyphen removed */
+  border-color: #FFA500;
+}
+
+.card[data-subject="Magic for the Trade Show"] {  /* Hyphen removed */
+  border-color: #008080;
+}
+
+.card[data-subject="Magic for the Convention"] {  /* Hyphen removed */
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Magic for the Restaurant"] {  /* Hyphen removed */
+  border-color: #808080;
+}
+
+.card[data-subject="Magic for the Bar"] {  /* Hyphen removed */
+  border-color: #000000;
+}
+
+.card[data-subject="Magic for the Nightclub"] {  /* Hyphen removed */
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="Magic for the Hospital"] {  /* Hyphen removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Magic for the School"] {  /* Hyphen removed */
+  border-color: #800000;
+}
+
+.card[data-subject="Magic for the Church"] {  /* Hyphen removed */
+  border-color: #00FF00;
+}
+
+.card[data-subject="Magic for the Library"] {  /* Hyphen removed */
+  border-color: #0000FF;
+}
+
+.card[data-subject="Magic for the Museum"] {  /* Hyphen removed */
+  border-color: #FF0000;
+}
+
+.card[data-subject="Magic for the Art Gallery"] {  /* Hyphen removed */
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Magic for the Zoo"] {  /* Hyphen removed */
+  border-color: #FA8072;
+}
+
+.card[data-subject="Magic for the Park"] {  /* Hyphen removed */
+  border-color: #800080;
+}
+
+.card[data-subject="Magic for the Carnival"] {  /* Hyphen removed */
+  border-color: #FFA500;
+}
+
+.card[data-subject="Magic for the Fair"] {  /* Hyphen removed */
+  border-color: #008080;
+}
+
+.card[data-subject="Magic for the Festival"] {  /* Hyphen removed */
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Magic for the Holiday"] {  /* Hyphen removed */
+  border-color: #808080;
+}
+
+.card[data-subject="Magic for the Birthday Party"] {  /* Hyphen removed */
+  border-color: #000000;
+}
+
+.card[data-subject="Magic for the Wedding"] {  /* Hyphen removed */
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="Magic for the Anniversary"] {  /* Hyphen removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Magic for the Graduation"] {  /* Hyphen removed */
+  border-color: #800000;
+}
+
+.card[data-subject="Magic for the Retirement"] {  /* Hyphen removed */
+  border-color: #00FF00;
+}
+
+.card[data-subject="Magic for the Funeral"] {  /* Hyphen removed */
+  border-color: #0000FF;
+}
+
+.card[data-subject="Magic for the Special Occasion"] {  /* Hyphen removed */
+  border-color: #FF0000;
+}
+
+.card[data-subject="Impromptu Card Mysteries"] {
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Mental Card Mysteries"] {
+  border-color: #FA8072;
+}
+
+.card[data-subject="Comedy Magic"] {
+  border-color: #FFA500;
+}
+
+.card[data-subject="Pantomime Illusions"] {
+  border-color: #008080;
+}
+
+.card[data-subject="Making Magic Pay"] {
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Card Sleights"] {
+  border-color: #808080;
+}
+
+.card[data-subject="Novel Card Mysteries"] {
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Restoring Torn Papers"] {
+  border-color: #800000;
+}
+
+.card[data-subject="Rope and Tape"] {
+  border-color: #00FF00;
+}
+
+.card[data-subject="Handkerchief Tricks"] {
+  border-color: #0000FF;
+}
+
+.card[data-subject="Knotty Silks"] {
+  border-color: #FF0000;
+}
+
+.card[data-subject="Eggs and Silks"] {
+  border-color: #00FFFF;
+}
+
+.card[data-subject="How to Please Your Audience"] {
+  border-color: #FA8072;
+}
+
+.card[data-subject="Magic with Wands"] {
+  border-color: #800080;
+}
+
+.card[data-subject="Double Paper Mysteries"] {
+  border-color: #008080;
+}
+
+.card[data-subject="Cigarette Magic"] {
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Selected Card Mysteries"] {  /* Hyphen removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Rising Cards"] {  /* Hyphen removed */
+  border-color: #800000;
+}
+
+.card[data-subject="Egg Magic"] {  /* Hyphen removed */
+  border-color: #00FF00;
+}
+
+.card[data-subject="Billiard Ball Manipulation"] {  /* Hyphen removed */
+  border-color: #0000FF;
+}
+
+.card[data-subject="Handkerchief Magic"] {  /* Hyphen removed */
+  border-color: #FF0000;
+}
+
+.card[data-subject="Ghostlite Mysteries"] {  /* Hyphen removed */
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Making Magic Pay"] {
+  border-color: #FA8072;
+}
+
+.card[data-subject="Illusions"] {
+  border-color: #800080;
+}
+
+.card[data-subject="Mental Magic"] {
+  border-color: #FFA500;
+}
+
+.card[data-subject="Routining a Magic Show"] {  /* Hyphen removed */
+  border-color: #008080;
+}
+
+.card[data-subject="How to Make People Laugh"] {  /* Hyphen removed */
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Intimate Magic"] {  /* Hyphen removed */
+  border-color: #808080;
+}
+
+.card[data-subject="Conjuring with Currency"] {  /* Hyphen removed */
+  border-color: #000000;
+}
+
+.card[data-subject="Modern Coin Effects"] {  /* Hyphen removed */
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="Fundamental Card Sleights"] {  /* Hyphen removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="Card Mysteries"] {  /* Hyphen removed */
+  border-color: #800000;
+}
+
+.card[data-subject="Card Stabbing"] {  /* Hyphen removed */
+  border-color: #00FF00;
+}
+
+.card[data-subject="Novelty Handkerchief Magic"] {  /* Hyphen removed */
+  border-color: #0000FF;
+}
+
+.card[data-subject="Color Changing Silks"] {  /* Hyphen removed */
+  border-color: #FF0000;
+}
+
+.card[data-subject="Rabbit and Dove Magic"] {  /* Hyphen removed */
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Novelty Magic 1"] {  /* Hyphen removed */
+  border-color: #FA8072;
+}
+
+.card[data-subject="Novelty Magic 2"] {  /* Hyphen removed */
+  border-color: #800080;
+}
+
+.card[data-subject="Thimble Magic"] {  /* Hyphen removed */
+  border-color: #FFA500;
+}
+
+.card[data-subject="Swallowing Needles and Razor Blades"] {  /* Hyphen removed */
+  border-color: #008080;
+}
+
+.card[data-subject="Unique Card Magic"] {  /* Hyphen removed */
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Novelty Rising Cards"] {  /* Hyphen removed */
+  border-color: #808080;
+}
+
+.card[data-subject="Card Transition"] {  /* Hyphen removed */
+  border-color: #000000;
+}
+
+.card[data-subject="Mental and Psychic Mysteries Vol 1"] {  /* Hyphens removed */
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="Mental and Psychic Mysteries Vol 2"] {  /* Hyphens removed */
+  border-color: #FFFF00;
+}
+
+.card[data-subject="The Thumb Tie"] {  /* Hyphen removed */
+  border-color: #800000;
+}
+
+.card[data-subject="Chinese Linking Rings"] {  /* Hyphen removed */
+  border-color: #00FF00;
+}
+
+.card[data-subject="Magic with Ribbon"] {
+  border-color: #0000FF;
+}
+
+.card[data-subject="Silken Trickery"] {  /* Hyphen removed */
+  border-color: #FF0000;
+}
+
+.card[data-subject="Slate Mysteries Vol 1"] {  /* Hyphens removed */
+  border-color: #00FFFF;
+}
+
+.card[data-subject="Slate Mysteries Vol 2"] {  /* Hyphens removed */
+  border-color: #FA8072;
+}
+
+.card[data-subject="Magic of the Bambergs"] {  /* Hyphen removed */
+  border-color: #800080;
+}
+
+.card[data-subject="Magic with Bowls and Liquids"] {  /* Hyphen removed */
+  border-color: #FFA500;
+}
+
+.card[data-subject="Original Oriental Secrets"] {  /* Hyphen removed */
+  border-color: #008080;
+}
+
+.card[data-subject="Tarbell Hindu Rope Mysteries"] {  /* Hyphen removed */
+  border-color: #A52A2A;
+}
+
+.card[data-subject="Modern Rope Magic"] {  /* Hyphen removed */
+  border-color: #808080;
+}
+
+.card[data-subject="XRay Eyes and Blindfold Effects"] {  /* Hyphens removed */
+  border-color: #000000;
+}
+
+.card[data-subject="MindReading Mysteries Vol 1"] {  /* Hyphens removed */
+  border-color: #FFC0CB;
+}
+
+.card[data-subject="MindReading Mysteries Vol 2"] {  /* Hyphens removed */
+  border-color: #FFFF00;
+}

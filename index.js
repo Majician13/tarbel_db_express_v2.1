@@ -1,49 +1,61 @@
 const express = require('express');
 const pg = require('pg');
+const fs = require('fs'); // Import the file system module
 
 const app = express();
 const port = 3000;
 
 // Configure PostgreSQL connection
 const pool = new pg.Pool({
-  user: 'postgres', // Replace with your actual username
+  user: 'postgres',
   host: 'localhost',
-  database: 'tarbell', // Replace with your actual database name
-  password: 'Sarcasm13!', // Replace with your actual password
-  port: 5433, // Default PostgreSQL port
+  database: 'tarbell',
+  password: 'Sarcasm13!',
+  port: 5433,
 });
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
+// Add this line to serve static files from the 'public' directory
+app.use(express.static('public')); 
+
 app.get('/', (req, res) => {
   res.render('index');
 });
 
+app.get('/styles.css', (req, res) => {
+  fs.readFile('public/styles.css', (err, data) => {
+    if (err) {
+      console.error('Error reading styles.css:', err);
+      res.status(500).send('Error loading stylesheet');
+      return;
+    }
+    res.setHeader('Content-Type', 'text/css');
+    res.send(data);
+  });
+});
+
 app.get('/search', async (req, res) => {
-  const query = req.query.query;
   try {
+    const query = req.query.query; 
     const results = await searchDatabase(query);
-
-    // Log the results to the console
-    console.log('Search results:', results);
-
     res.render('results', { results });
   } catch (error) {
     console.error('Error searching database:', error);
-    res.status(500).render('error', { error: error.message });
+    res.status(500).send('Error searching database'); 
   }
 });
 
 app.get('/all', async (req, res) => {
   try {
-    const sort = req.query.sort || 'ID'; // Default sorting by ID
-    const order = req.query.order || 'ASC'; // Default order is ascending
+    const sort = req.query.sort || 'ID'; 
+    const order = req.query.order || 'ASC'; 
     const results = await getAllEntries(sort, order);
     res.render('results', { results, sort, order });
   } catch (error) {
     console.error('Error fetching all entries:', error);
-    res.status(500).render('error', { error: error.message });
+    res.status(500).send('Error fetching all entries'); 
   }
 });
 
@@ -55,7 +67,7 @@ async function getAllEntries(sort, order) {
     return result.rows;
   } catch (error) {
     console.error('Error executing SQL query:', error);
-    throw error;
+    throw error; 
   } finally {
     client.release();
   }
@@ -64,10 +76,8 @@ async function getAllEntries(sort, order) {
 async function searchDatabase(query) {
   const client = await pool.connect();
   try {
-    // Convert the query to lowercase for case-insensitive search
-    const lowercaseQuery = query.toLowerCase();
+    const lowercaseQuery = query?.toLowerCase(); 
 
-    // Construct the SQL query dynamically based on the search term
     const sql = `
       SELECT *
       FROM tarbell
@@ -84,15 +94,11 @@ async function searchDatabase(query) {
         LOWER(INVENTOR) LIKE '%${lowercaseQuery}%'
     `;
 
-    // Log the generated SQL query for debugging
-    console.log('Generated SQL query:', sql);
-
     const result = await client.query(sql);
     return result.rows;
   } catch (error) {
-    // Log more specific error messages
     console.error('Error executing SQL query:', error);
-    throw error; // Re-throw the error to be caught by the try-catch block in /search route
+    throw error; 
   } finally {
     client.release();
   }
