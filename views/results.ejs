@@ -2,29 +2,46 @@
 <html>
 <head>
   <title>Search Results</title>
-  <link rel="stylesheet" href="/styles.css"> 
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <a href="/all" class="show-all-link">Show All Entries</a>
+<a href="/all" class="show-all-link">Show All Entries</a>
 
-  <h1>Search Results</h1>
+<h1>Search Results</h1>
 
-  <form action="/search" method="GET">
-    <input type="text" name="query" placeholder="Enter search term">
-    <button type="submit">Search</button>
-  </form>
+<form action="/search" method="GET">
+  <input type="text" name="query" placeholder="Enter search term">
+  <button type="submit">Search</button>
+</form>
 
-  <% if (results.length === 0) { %>
-    <p>No results found.</p>
-  <% } else { %>
+<% if (results.length === 0) { %>
+  <p>No results found.</p>
+<% } else { %>
+  <div class="results-container">
+    <div class="filter-list">
+      <h2>Filter by Subject</h2>
+      <form id="filterForm" action="/all" method="GET">
+        <ul>
+          <% subjects.forEach(subject => { %>
+            <li>
+              <input type="checkbox" name="subject" value="<%= subject %>"
+                     <% if (req.query.subject && req.query.subject.includes(subject)) { %>checked<% } %>>
+              <%= subject %>
+            </li>
+          <% }); %>
+        </ul>
+        <button type="submit">Apply Filter</button>
+      </form>
+    </div>
+
     <div class="card-container">
       <% results.forEach(result => { %>
-        <div class="card" data-subject="<%= result.subject %>"> 
+        <div class="card" data-subject="<%= result.subject %>">
           <h3><%= result.TITLE %></h3>
           <p><strong>Title:</strong> <%= result.title %></p>
           <p><strong>Subject:</strong> <%= result.subject %></p>
           <p><strong>Lesson:</strong> <%= result.lesson %></p>
-          <p><strong>Timestamp:</strong> <%= result.timestamp %></p>           
+          <p><strong>Timestamp:</strong> <%= result.timestamp %></p>
           <p><strong>Volume:</strong> <%= result.volume %></p>
           <p><strong>Page:</strong> <%= result.page %></p>
           <p><strong>Description:</strong> <%= result.description %></p>
@@ -33,8 +50,24 @@
         </div>
       <% }); %>
     </div>
-  <% } %>
+  </div>
+<% } %>
 
-  <a href="/">Back to Search</a>
+<a href="/">Back to Search</a>
+
+<script>
+  const checkboxes = document.querySelectorAll('input[name="subject"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const selectedSubjects = Array.from(checkboxes)
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+
+      const form = document.getElementById('filterForm');
+      form.action = '/all?' + selectedSubjects.map(subject => `subject=${subject}`).join('&');
+    });
+  });
+</script>
+
 </body>
 </html>

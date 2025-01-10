@@ -25,6 +25,22 @@
     display: block;
     /* Added to ensure cards stack vertically */
   }
+
+/* Styles for the results page */
+.results-container {
+  display: flex; /* Use flexbox for layout */
+}
+
+.filter-list {
+  width: 20%; /* Adjust width as needed */
+  margin-right: 20px; /* Add some space between filter and cards */
+}
+
+.card-container {
+  width: 80%; /* Adjust width as needed */
+  display: flex;
+  flex-wrap: wrap;
+}
   
   /* Subject-specific border colors */
 .card[data-subject="Introduction"] {
