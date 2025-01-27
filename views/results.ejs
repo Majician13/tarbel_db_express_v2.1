@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Search Results</title>
-  <link rel="stylesheet" href="/styles.css">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 <a href="/all" class="show-all-link">Show All Entries</a>
+<a href="/favorites" class="show-favorites-link">Show Favorites</a>
 
 <h1>Search Results</h1>
 
 <form action="/search" method="GET">
-  <input type="text" name="query" placeholder="Enter search term">
-  <button type="submit">Search</button>
+    <input type="text" name="query" placeholder="Enter search term">
+    <button type="submit">Search</button>
 </form>
 
 <% if (results.length === 0) { %>
-  <p>No results found.</p>
+<p>No results found.</p>
 <% } else { %>
-  <div class="results-container">
+<div class="results-container">
     <div class="filter-list">
-      <h2>Filter by Subject</h2>
-      <form id="filterForm" action="/all" method="GET">
-        <ul>
-          <% subjects.forEach(subject => { %>
-            <li>
-              <input type="checkbox" name="subject" value="<%= subject %>"
-                     <% if (req.query.subject && req.query.subject.includes(subject)) { %>checked<% } %>>
-              <%= subject %>
-            </li>
-          <% }); %>
-        </ul>
-        <button type="submit">Apply Filter</button>
-      </form>
+        <h2>Filter by Subject</h2>
+        <form id="filterForm" action="/all" method="GET">
+            <ul>
+                <% subjects.forEach(subject => { %>
+                <li>
+                    <input type="checkbox" name="subject" value="<%= subject %>"
+                    <% if (req.query.subject && req.query.subject.includes(subject)) { %>checked<% } %>>
+                    <%= subject %>
+                </li>
+                <% }); %>
+            </ul>
+            <button type="submit">Apply Filter</button>
+        </form>
     </div>
 
     <div class="card-container">
-      <% results.forEach(result => { %>
-        <div class="card" data-subject="<%= result.subject %>">
-          <h3><%= result.TITLE %></h3>
-          <p><strong>Title:</strong> <%= result.title %></p>
-          <p><strong>Subject:</strong> <%= result.subject %></p>
-          <p><strong>Lesson:</strong> <%= result.lesson %></p>
-          <p><strong>Timestamp:</strong> <%= result.timestamp %></p>
-          <p><strong>Volume:</strong> <%= result.volume %></p>
-          <p><strong>Page:</strong> <%= result.page %></p>
-          <p><strong>Description:</strong> <%= result.description %></p>
-          <p><strong>Book Description:</strong> <%= result.book_description %></p>
-          <p><strong>Inventor:</strong> <%= result.inventor %></p>
+        <% results.forEach(result => { %>
+        <div class="card" data-card-id="<%= result.id %>" data-subject="<%= result.subject %>">
+            <h3><%= result.TITLE %></h3>
+            <i class="far fa-star favorite-star" data-card-id="<%= result.id %>"></i>
+            <p><strong>Title:</strong> <%= result.title %></p>
+            <p><strong>Subject:</strong> <%= result.subject %></p>
+            <p><strong>Lesson:</strong> <%= result.lesson %></p>
+            <p><strong>Timestamp:</strong> <%= result.timestamp %></p>
+            <p><strong>Volume:</strong> <%= result.volume %></p>
+            <p><strong>Page:</strong> <%= result.page %></p>
+            <p><strong>Description:</strong> <%= result.description %></p>
+            <p><strong>Book Description:</strong> <%= result.book_description %></p>
+            <p><strong>Inventor:</strong> <%= result.inventor %></p>
         </div>
-      <% }); %>
+        <% }); %>
     </div>
-  </div>
+</div>
 <% } %>
 
 <a href="/">Back to Search</a>
@@ -67,6 +70,43 @@
       form.action = '/all?' + selectedSubjects.map(subject => `subject=${subject}`).join('&');
     });
   });
+
+  const stars = document.querySelectorAll('.favorite-star');
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      const cardId = star.dataset.cardId;
+      const userId = <%= user ? user.user_id : null %>;
+      console.log("STAR User ID:", userId);
+      console.log("STAR Card ID:", cardId);
+      star.classList.toggle('active');
+      toggleFavorite(cardId, userId);
+    });
+  });
+
+  function toggleFavorite(cardId, userId) {
+    console.log("RESULTS.EJS User ID:", userId);
+    console.log("RESULTS.EJS Card ID:", cardId);
+    fetch('/toggle-favorite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({cardId: cardId, userId: userId})
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error('Network response was not ok');
+            return; // Prevent further execution of the promise chain
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Server Response:", data);
+    })
+    .catch(error => {
+        console.error('Error toggling favorite:', error);
+    });
+  }
 </script>
 
 </body>

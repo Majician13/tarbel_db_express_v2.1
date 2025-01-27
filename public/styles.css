@@ -13,6 +13,19 @@
     width: 100%;
     /* Add this line to make the container take full width */
   }
+
+  .favorite-star {
+    font-size: 24px;
+    cursor: pointer;
+    color: transparent; /* Initially transparent */
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black; /* Black outline */
+  }
+
+  .favorite-star.active {
+    color: yellow; /* Filled yellow when active */
+    -webkit-text-stroke-color: transparent; /* Remove outline */
+  }
   
   .card {
     border: 1px solid #ccc;
