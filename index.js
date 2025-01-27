@@ -166,8 +166,9 @@ app.post('/toggle-favorite', async (req, res) => {
         try {
             console.log("Attempting to toggle favorite");
             // Check if the record exists in the Favorites table
-            const existingFavorite = await db.Favorites.findOne({
+            const existingFavorite = await db.favorites.findOne({
                 where: {user_id: userId, card_id: cardId},
+                attributes: ['id', 'user_id', 'card_id'], // Only retrieve the ID, user_id and card_id
             });
             if (existingFavorite) {
                 console.log("Removing from favorites");
@@ -176,7 +177,7 @@ app.post('/toggle-favorite', async (req, res) => {
             } else {
                 console.log("Adding to favorites");
                 // If the record doesn't exist, create it (add to favorites)
-                await db.Favorites.create({
+                await db.favorites.create({
                     user_id: userId,
                     card_id: cardId,
                 });
@@ -198,15 +199,17 @@ app.post('/toggle-favorite', async (req, res) => {
 app.get('/favorites', requireAuth, async (req, res) => { // Apply requireAuth middleware
     console.log("Favorites route reached");
     try {
-        const userId = req.session.user.id;
-        const favorites = await db.Favorites.findAll({
+        const userId = req.session.user.user_id;
+        const favorites = await db.favorites.findAll({
             where: {user_id: userId},
             attributes: ['card_id'], // Only retrieve the card_id
         });
         const cardIds = favorites.map((favorite) => favorite.card_id);
-        const cards = await db.Cards.findAll({
+        console.log("Favorite CardIds: ", cardIds);
+        const cards = await db.tarbell.findAll({
             where: {id: cardIds},
         });
+        console.log("Cards: ", cards);
         res.render('favorites', {favorites: cards, user: req.session.user});
     } catch (error) {
         console.error('Error fetching favorites:', error);
