@@ -1,0 +1,6 @@
+1-27-25
+    ensured stars stay lit even if server restarts or page refreshes. 
+
+To-Do:
+    Need to add stars to cards on Favorites page and need to ensure full card shows not just subject and title.
+
