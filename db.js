@@ -9,21 +9,58 @@ const sequelize = new Sequelize(config.db.database, config.db.user, config.db.pa
 
 // Define the favorites model
 const favorites = sequelize.define('favorites', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-    card_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    }
+  id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+  },
+  user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+  },
+  card_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+  },
+  // Add the missing columns here:
+  title: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  subject: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  lesson: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  timestamp: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  volume: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  page: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  book_description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  },
+  inventor: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  }
 }, {
-    timestamps: false // Disable timestamps
+  timestamps: false // Disable timestamps
 });
 
 // Define the Cards model (replace with your actual card details)
@@ -91,6 +128,10 @@ const tarbell = sequelize.define('tarbell', {
         console.error('Unable to connect to the database:', error);
     }
 })();
+
+// Define the relationships between the models
+tarbell.belongsToMany(favorites, { through: 'favorites', foreignKey: 'card_id', as: 'tarbellFavorites' });
+favorites.belongsToMany(tarbell, { through: 'favorites', foreignKey: 'card_id', as: 'favoriteTarbells' });
 
 // Export the models
 module.exports = {

@@ -165,23 +165,23 @@ app.post('/toggle-favorite', async (req, res) => {
     if (userId && cardId) {
         try {
             console.log("Attempting to toggle favorite");
-            // Check if the record exists in the Favorites table
-            const existingFavorite = await db.favorites.findOne({
-                where: {user_id: userId, card_id: cardId},
-                attributes: ['id', 'user_id', 'card_id'], // Only retrieve the ID, user_id and card_id
+        
+            // Try to delete the record directly using user_id and card_id
+            const deletedRowCount = await db.favorites.destroy({
+                where: {user_id: userId, card_id: cardId}
             });
-            if (existingFavorite) {
-                console.log("Removing from favorites");
-                // If the record exists, delete it (remove from favorites)
-                await existingFavorite.destroy();
+        
+            if (deletedRowCount > 0) {
+                console.log("Removing from favorites successful");
             } else {
                 console.log("Adding to favorites");
-                // If the record doesn't exist, create it (add to favorites)
+                // If no record was deleted, create a new favorite
                 await db.favorites.create({
                     user_id: userId,
                     card_id: cardId,
                 });
             }
+        
             console.log("Toggle favorite successful");
             res.json({success: true});
         } catch (error) {
@@ -202,7 +202,7 @@ app.get('/favorites', requireAuth, async (req, res) => { // Apply requireAuth mi
         const userId = req.session.user.user_id;
         const favorites = await db.favorites.findAll({
             where: {user_id: userId},
-            attributes: ['card_id'], // Only retrieve the card_id
+            attributes: ['card_id', 'lesson','subject','title','timestamp','volume','page','description','book_description','inventor'], 
         });
         const cardIds = favorites.map((favorite) => favorite.card_id);
         console.log("Favorite CardIds: ", cardIds);
