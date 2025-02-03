@@ -137,20 +137,40 @@ app.get('/search', requireAuth, async (req, res) => {
 app.get('/all', requireAuth, async (req, res) => {
     console.log("All route reached");
     try {
-        const sort = req.query.sort || 'ID';
-        const order = req.query.order || 'ASC';
-        let results = await getAllEntries(sort, order);
-        let subjects = [...new Set(results.map((result) => result.subject))];
-        const filterSubjects = Array.isArray(req.query.subject) ? req.query.subject : [req.query.subject];
-        if (filterSubjects && filterSubjects.length > 0 && filterSubjects[0] !== undefined) {
-            results = results.filter((result) => filterSubjects.includes(result.subject));
-        }
-        res.render('results', {results, sort, order, subjects, req, user: req.session.user});
+      const userId = req.session.user.user_id; // Get the user ID
+      const sort = req.query.sort || 'ID';
+      const order = req.query.order || 'ASC';
+      const results = await getAllEntries(sort, order); // Fetch all entries
+  
+      // Fetch the user's favorite card IDs
+      const favorites = await db.favorites.findAll({
+        where: {user_id: userId},
+        attributes: ['card_id']
+      });
+      const favoriteCardIds = favorites.map(favorite => favorite.card_id);
+  
+      // Mark cards as favorite
+      const updatedResults = results.map(result => ({
+      ...result,
+        isFavorite: favoriteCardIds.includes(result.id)
+      }));
+  
+      let subjects = [...new Set(results.map((result) => result.subject))];
+  
+      // Render the 'results.ejs' view to display all cards
+      res.render('results', {
+        results: updatedResults,
+        sort,
+        order,
+        subjects,
+        req,
+        user: req.session.user
+      });
     } catch (error) {
-        console.error('Error fetching all entries:', error);
-        res.status(500).send('Error fetching all entries');
+      console.error('Error fetching all entries:', error);
+      res.status(500).send('Error fetching all entries');
     }
-});
+  });
 
 // Toggle favorite route
 app.post('/toggle-favorite', async (req, res) => {
@@ -224,16 +244,18 @@ async function getAllEntries(sort, order) {
     console.log("getAllEntries function reached");
     const client = await pool.connect();
     try {
-        const sql = `SELECT * FROM tarbell ORDER BY ${sort} ${order}`;
-        const result = await client.query(sql);
-        return result.rows;
+      // Use template literals to construct the SQL query
+      const sql = `SELECT * FROM tarbell ORDER BY ${sort} ${order}`;
+      const result = await client.query(sql); // No need to pass sort and order as parameters
+      console.log("Raw data from database:", result.rows);
+      return result.rows;
     } catch (error) {
-        console.error('Error executing SQL query:', error);
-        throw error;
+      console.error('Error executing SQL query:', error);
+      throw error;
     } finally {
-        client.release();
+      client.release();
     }
-}
+  }
 
 // Function to search the database
 async function searchDatabase(query) {

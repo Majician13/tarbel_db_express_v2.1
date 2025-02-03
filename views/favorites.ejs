@@ -15,10 +15,22 @@
 <% } else { %>
   <div class="card-container">
     <% favorites.forEach(favorite => { %>
-      <div class="card" data-card-id="<%= favorite.card_id %>" data-subject="<%= favorite.subject %>">
-        <h3><%= favorite.title %></h3>
-        <p><strong>Subject:</strong> <%= favorite.subject %></p>
+      <div class="card" data-card-id="<%= favorite.id %>" data-subject="<%= favorite.subject %>">
+        <div class="card-header">
+            <span class="card-title"><%= favorite.title %></span>
+            <span class="favorite-star" data-card-id="<%= favorite.id %>" style="color: <%= favorite.isFavorite? 'yellow': 'gray' %>;">&#9733;</span>
         </div>
+        <div class="card-body" data-subject="<%= favorite.subject %>">
+            <p>Lesson: <%= favorite.lesson %></p>
+            <p>Subject: <%= favorite.subject %></p>
+            <p>Timestamp: <%= favorite.timestamp %></p>
+            <p>Volume: <%= favorite.volume %></p>
+            <p>Page: <%= favorite.page %></p>
+            <p>Description: <%= favorite.description %></p>
+            <p>Book Description: <%= favorite.book_description %></p>
+            <p>Inventor: <%= favorite.inventor %></p>
+        </div>
+      </div>
     <% }); %>
   </div>
 <% } %>

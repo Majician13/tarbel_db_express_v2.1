@@ -1,0 +1,6 @@
+Card borders are no longer colored by subject.
+Favorites page: 
+    Card needs all headers and data
+    Card needs favorites stars and ability to remove card from favorites
+
+User needs ability to include different lists other than favorites (Possibly openers, closers, etc...)
