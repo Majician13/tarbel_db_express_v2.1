@@ -97,13 +97,22 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
     console.log("Login POST route reached");
-    const {username, password} = req.body;
+    const { username, password } = req.body;
     try {
         const query = 'SELECT * FROM users WHERE username = $1';
         const result = await pool.query(query, [username]);
+        console.log("Query Result:", result);
+        console.log("Number of Rows:", result.rows.length);
+
         if (result.rows.length > 0) {
-            const user = result.rows;
+            const user = result.rows[0]; // Assign the first row to user
+            console.log("Fetched user:", user);
+            console.log("Password:", password);
+            console.log("Password Hash:", user.password_hash);
+            
+            // Access password_hash directly from user object
             const match = await bcrypt.compare(password, user.password_hash);
+
             if (match) {
                 req.session.user = user;
                 res.redirect('/all');
@@ -137,40 +146,40 @@ app.get('/search', requireAuth, async (req, res) => {
 app.get('/all', requireAuth, async (req, res) => {
     console.log("All route reached");
     try {
-      const userId = req.session.user.user_id; // Get the user ID
-      const sort = req.query.sort || 'ID';
-      const order = req.query.order || 'ASC';
-      const results = await getAllEntries(sort, order); // Fetch all entries
-  
-      // Fetch the user's favorite card IDs
-      const favorites = await db.favorites.findAll({
-        where: {user_id: userId},
-        attributes: ['card_id']
-      });
-      const favoriteCardIds = favorites.map(favorite => favorite.card_id);
-  
-      // Mark cards as favorite
-      const updatedResults = results.map(result => ({
-    ...result,
-        isFavorite: favoriteCardIds.includes(result.id)
-      }));
-  
-      let subjects = [...new Set(results.map((result) => result.subject))];
-  
-      // Render the 'results.ejs' view to display all cards
-      res.render('results', {
-        results: updatedResults,
-        sort,
-        order,
-        subjects,
-        req,
-        user: req.session.user
-      });
+        const userId = req.session.user.user_id; // Get the user ID
+        const sort = req.query.sort || 'ID';
+        const order = req.query.order || 'ASC';
+        const results = await getAllEntries(sort, order); // Fetch all entries
+
+        // Fetch the user's favorite card IDs
+        const favorites = await db.favorites.findAll({
+            where: {user_id: userId},
+            attributes: ['card_id']
+        });
+        const favoriteCardIds = favorites.map(favorite => favorite.card_id);
+
+        // Mark cards as favorite
+        const updatedResults = results.map(result => ({
+          ...result,
+            isFavorite: favoriteCardIds.includes(result.id)
+        }));
+
+        let subjects = [...new Set(results.map((result) => result.subject))];
+
+        // Render the 'results.ejs' view to display all cards
+        res.render('results', {
+            results: updatedResults,
+            sort,
+            order,
+            subjects,
+            req,
+            user: req.session.user
+        });
     } catch (error) {
-      console.error('Error fetching all entries:', error);
-      res.status(500).send('Error fetching all entries');
+        console.error('Error fetching all entries:', error);
+        res.status(500).send('Error fetching all entries');
     }
-  });
+});
 
 // Toggle favorite route
 app.post('/toggle-favorite', async (req, res) => {
@@ -233,7 +242,7 @@ app.get('/favorites', requireAuth, async (req, res) => {
 
         // Add isFavorite property to each card
         const updatedCards = cards.map(card => ({
-          ...card.dataValues,
+        ...card.dataValues,
             isFavorite: true // Since these are favorites, set to true
         }));
 
@@ -243,6 +252,17 @@ app.get('/favorites', requireAuth, async (req, res) => {
         console.error('Error fetching favorites:', error);
         res.status(500).send('Error fetching favorites');
     }
+});
+
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            res.status(500).send('Error logging out');
+        } else {
+            res.redirect('/');
+        }
+    });
 });
 
 // --- Helper functions ---
@@ -263,7 +283,7 @@ async function getAllEntries(sort, order) {
     } finally {
       client.release();
     }
-  }
+}
 
 // Function to search the database
 async function searchDatabase(query) {
