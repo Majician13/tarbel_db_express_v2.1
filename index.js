@@ -102,7 +102,7 @@ app.post('/login', async (req, res) => {
         const query = 'SELECT * FROM users WHERE username = $1';
         const result = await pool.query(query, [username]);
         if (result.rows.length > 0) {
-            const user = result.rows[0];
+            const user = result.rows;
             const match = await bcrypt.compare(password, user.password_hash);
             if (match) {
                 req.session.user = user;
@@ -151,7 +151,7 @@ app.get('/all', requireAuth, async (req, res) => {
   
       // Mark cards as favorite
       const updatedResults = results.map(result => ({
-      ...result,
+    ...result,
         isFavorite: favoriteCardIds.includes(result.id)
       }));
   
@@ -185,12 +185,12 @@ app.post('/toggle-favorite', async (req, res) => {
     if (userId && cardId) {
         try {
             console.log("Attempting to toggle favorite");
-        
+
             // Try to delete the record directly using user_id and card_id
             const deletedRowCount = await db.favorites.destroy({
                 where: {user_id: userId, card_id: cardId}
             });
-        
+
             if (deletedRowCount > 0) {
                 console.log("Removing from favorites successful");
             } else {
@@ -201,7 +201,7 @@ app.post('/toggle-favorite', async (req, res) => {
                     card_id: cardId,
                 });
             }
-        
+
             console.log("Toggle favorite successful");
             res.json({success: true});
         } catch (error) {
@@ -216,21 +216,29 @@ app.post('/toggle-favorite', async (req, res) => {
 });
 
 // Get favorites route
-app.get('/favorites', requireAuth, async (req, res) => { // Apply requireAuth middleware
+app.get('/favorites', requireAuth, async (req, res) => {
     console.log("Favorites route reached");
     try {
         const userId = req.session.user.user_id;
         const favorites = await db.favorites.findAll({
-            where: {user_id: userId},
-            attributes: ['card_id', 'lesson','subject','title','timestamp','volume','page','description','book_description','inventor'], 
+            where: { user_id: userId },
+            attributes: ['card_id', 'lesson', 'subject', 'title', 'timestamp', 'volume', 'page', 'description', 'book_description', 'inventor'],
         });
+
         const cardIds = favorites.map((favorite) => favorite.card_id);
         console.log("Favorite CardIds: ", cardIds);
         const cards = await db.tarbell.findAll({
-            where: {id: cardIds},
+            where: { id: cardIds },
         });
-        console.log("Cards: ", cards);
-        res.render('favorites', {favorites: cards, user: req.session.user});
+
+        // Add isFavorite property to each card
+        const updatedCards = cards.map(card => ({
+          ...card.dataValues,
+            isFavorite: true // Since these are favorites, set to true
+        }));
+
+        console.log("Cards: ", updatedCards);
+        res.render('favorites', { favorites: updatedCards, user: req.session.user });
     } catch (error) {
         console.error('Error fetching favorites:', error);
         res.status(500).send('Error fetching favorites');

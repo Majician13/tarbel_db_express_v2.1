@@ -26,6 +26,10 @@
     color: yellow; /* Filled yellow when active */
     -webkit-text-stroke-color: transparent; /* Remove outline */
   }
+
+  .favorite-star[data-favorite="true"] {
+    color: yellow;
+    }
   
   .card {
     border: 1px solid #ccc;

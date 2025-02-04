@@ -5,36 +5,85 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<a href="/all" class="show-all-link">Show All Entries</a>
-<a href="/favorites" class="show-favorites-link">Show Favorites</a>
+  <a href="/all" class="show-all-link">Show All Entries</a>
+  <a href="/favorites" class="show-favorites-link">Show Favorites</a>
 
-<h1>Favorites</h1>
+  <h1>Favorites</h1>
 
-<% if (favorites.length === 0) { %>
+  <% if (favorites.length === 0) { %>
   <p>You have no favorites yet.</p>
-<% } else { %>
+  <% } else { %>
   <div class="card-container">
     <% favorites.forEach(favorite => { %>
-      <div class="card" data-card-id="<%= favorite.id %>" data-subject="<%= favorite.subject %>">
-        <div class="card-header">
-            <span class="card-title"><%= favorite.title %></span>
-            <span class="favorite-star" data-card-id="<%= favorite.id %>" style="color: <%= favorite.isFavorite? 'yellow': 'gray' %>;">&#9733;</span>
-        </div>
-        <div class="card-body" data-subject="<%= favorite.subject %>">
-            <p>Lesson: <%= favorite.lesson %></p>
-            <p>Subject: <%= favorite.subject %></p>
-            <p>Timestamp: <%= favorite.timestamp %></p>
-            <p>Volume: <%= favorite.volume %></p>
-            <p>Page: <%= favorite.page %></p>
-            <p>Description: <%= favorite.description %></p>
-            <p>Book Description: <%= favorite.book_description %></p>
-            <p>Inventor: <%= favorite.inventor %></p>
-        </div>
+    <div class="card" data-card-id="<%= favorite.id %>" data-subject="<%= favorite.subject %>">
+      <div class="card-header">
+        <span class="card-title"><h1><strong><%= favorite.title %></strong></h1></span>
+        <span 
+          class="favorite-star" 
+          data-card-id="<%= favorite.id %>" 
+          data-favorite="<%= favorite.isFavorite %>" 
+          >
+          &#9733;
+        </span>
       </div>
+      <div class="card-body">
+        <p><strong>Lesson:</strong> <%= favorite.lesson %></p>
+        <p><strong>Subject:</strong> <%= favorite.subject %></p>
+        <p><strong>Timestamp:</strong> <%= favorite.timestamp %></p>
+        <p><strong>Volume:</strong> <%= favorite.volume %></p>
+        <p><strong>Page:</strong> <%= favorite.page %></p>
+        <p><strong>Description:</strong> <%= favorite.description %></p>
+        <p><strong>Book Description:</strong> <%= favorite.book_description %></p>
+        <p><strong>Inventor:</strong> <%= favorite.inventor %></p>
+      </div>
+    </div>
     <% }); %>
   </div>
-<% } %>
+  <% } %>
 
-<a href="/">Back to Search</a>
+  <a href="/">Back to Search</a>
+
+  <script>
+    const stars = document.querySelectorAll('.favorite-star');
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const cardId = star.dataset.cardId;
+        const userId = <%= user? user.user_id: null %>;
+        console.log("STAR User ID:", userId);
+        console.log("STAR Card ID:", cardId);
+        // Instead of toggling 'active' class, update the data-favorite attribute
+        const isFavorite = star.dataset.favorite === 'true';
+        star.dataset.favorite =!isFavorite;
+        toggleFavorite(cardId, userId);
+      });
+    });
+
+    function toggleFavorite(cardId, userId) {
+      console.log("RESULTS.EJS User ID:", userId);
+      console.log("RESULTS.EJS Card ID:", cardId);
+      fetch('/toggle-favorite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cardId: cardId, userId: userId })
+      })
+    .then(response => {
+        if (!response.ok) {
+          console.error('Network response was not ok');
+          return; // Prevent further execution of the promise chain
+        }
+        return response.json();
+      })
+    .then(data => {
+        console.log("Server Response:", data);
+        // Refresh the page after successful toggle
+        location.reload();
+      })
+    .catch(error => {
+        console.error('Error toggling favorite:', error);
+      });
+    }
+  </script>
 </body>
 </html>
