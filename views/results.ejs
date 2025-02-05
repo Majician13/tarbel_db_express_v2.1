@@ -74,29 +74,35 @@
     });
 
     function toggleFavorite(cardId, userId) {
-        console.log("RESULTS.EJS User ID:", userId);
-        console.log("RESULTS.EJS Card ID:", cardId);
-        fetch('/toggle-favorite', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({cardId: cardId, userId: userId})
-        })
-      .then(response => {
-            if (!response.ok) {
-                console.error('Network response was not ok');
-                return; // Prevent further execution of the promise chain
-            }
-            return response.json();
-        })
-      .then(data => {
-            console.log("Server Response:", data);
-        })
-      .catch(error => {
-            console.error('Error toggling favorite:', error);
-        });
-    }
+      console.log("RESULTS.EJS User ID:", userId);
+      console.log("RESULTS.EJS Card ID:", cardId);
+      fetch('/toggle-favorite', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({cardId: cardId, userId: userId})
+      })
+    .then(response => {
+          if (!response.ok) {
+              console.error('Network response was not ok');
+              return; // Prevent further execution of the promise chain
+          }
+          return response.json();
+      })
+    .then(data => {
+          console.log("Server Response:", data);
+          const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
+          if (data.isFavorite) {
+              star.style.color = 'yellow';
+          } else {
+              star.style.color = 'gray';
+          }
+      })
+    .catch(error => {
+          console.error('Error toggling favorite:', error);
+      });
+  }
 </script>
 
 </body>

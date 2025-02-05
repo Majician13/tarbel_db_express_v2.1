@@ -6,7 +6,7 @@ Favorites page:
     User needs ability to include different lists other than favorites (Possibly openers, closers, etc...)
 
 
-    Stars on /all page should toggle immediately when clicked.  Currently if highlighted already, they stay highlighted if clicked (just a different highlight).  If not highlighted, they should be highlighted immediately when clicked. 
+ *  Stars on /all page should toggle immediately when clicked.  Currently if highlighted already, they stay highlighted if clicked (just a different highlight).  If not highlighted, they should be highlighted immediately when clicked. 
 
     Will update config.json with appropriate passwords once in production.  Just Testing ATM.
 

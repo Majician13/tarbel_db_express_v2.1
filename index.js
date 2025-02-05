@@ -105,7 +105,7 @@ app.post('/login', async (req, res) => {
         console.log("Number of Rows:", result.rows.length);
 
         if (result.rows.length > 0) {
-            const user = result.rows[0]; // Assign the first row to user
+            const user = result.rows; // Assign the first row to user
             console.log("Fetched user:", user);
             console.log("Password:", password);
             console.log("Password Hash:", user.password_hash);
@@ -160,7 +160,7 @@ app.get('/all', requireAuth, async (req, res) => {
 
         // Mark cards as favorite
         const updatedResults = results.map(result => ({
-          ...result,
+        ...result,
             isFavorite: favoriteCardIds.includes(result.id)
         }));
 
@@ -200,8 +200,15 @@ app.post('/toggle-favorite', async (req, res) => {
                 where: {user_id: userId, card_id: cardId}
             });
 
+            let isFavorite;
+
             if (deletedRowCount > 0) {
                 console.log("Removing from favorites successful");
+                isFavorite = false;
+
+                // Emit a success event with the removed cardId using Socket.IO
+                io.emit('favorite-removed', cardId); // Assuming you have Socket.IO set up
+
             } else {
                 console.log("Adding to favorites");
                 // If no record was deleted, create a new favorite
@@ -209,10 +216,11 @@ app.post('/toggle-favorite', async (req, res) => {
                     user_id: userId,
                     card_id: cardId,
                 });
+                isFavorite = true;
             }
 
             console.log("Toggle favorite successful");
-            res.json({success: true});
+            res.json({success: true, isFavorite});
         } catch (error) {
             console.error('Error toggling favorite:', error);
             res.status(500).json({success: false, error: 'Failed to toggle favorite'});
@@ -242,7 +250,7 @@ app.get('/favorites', requireAuth, async (req, res) => {
 
         // Add isFavorite property to each card
         const updatedCards = cards.map(card => ({
-        ...card.dataValues,
+      ...card.dataValues,
             isFavorite: true // Since these are favorites, set to true
         }));
 
@@ -331,6 +339,17 @@ app.get('/styles.css', (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+const server = app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
+
+// Socket.IO setup
+const { Server } = require("socket.io");
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  console.log("User connected");
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
 });

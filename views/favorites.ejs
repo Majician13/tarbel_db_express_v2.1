@@ -3,12 +3,12 @@
 <head>
   <title>Favorites</title>
   <link rel="stylesheet" href="/styles.css">
-</head>
+  <script src="/socket.io/socket.io.js"></script> </head>
 <body>
   <a href="/all" class="show-all-link">Show All Entries</a>
   <form action="/logout" method="POST" style="position: absolute; top: 30px; right: 10px;">
     <button type="submit">Log Out</button>
-</form>
+  </form>
   <a href="/favorites" class="show-favorites-link">Show Favorites</a>
 
   <h1>Favorites</h1>
@@ -25,6 +25,7 @@
           class="favorite-star" 
           data-card-id="<%= favorite.id %>" 
           data-favorite="<%= favorite.isFavorite %>" 
+          style="color: <%= favorite.isFavorite? 'yellow': 'gray' %>;"
           >
           &#9733;
         </span>
@@ -47,16 +48,26 @@
   <a href="/">Back to Search</a>
 
   <script>
+    // Initialize Socket.IO client
+    const socket = io();
+
+    // Listen for 'favorite-removed' event
+    socket.on('favorite-removed', (removedCardId) => {
+      // Find the card element with the matching data-card-id
+      const cardToRemove = document.querySelector(`[data-card-id="${removedCardId}"]`);
+      if (cardToRemove) {
+        // Remove the card element from the DOM
+        cardToRemove.remove();
+      }
+    });
+
     const stars = document.querySelectorAll('.favorite-star');
     stars.forEach(star => {
       star.addEventListener('click', () => {
         const cardId = star.dataset.cardId;
-        const userId = <%= user? user.user_id: null %>;
+        const userId = <%= user? user.user_id: null %>
         console.log("STAR User ID:", userId);
         console.log("STAR Card ID:", cardId);
-        // Instead of toggling 'active' class, update the data-favorite attribute
-        const isFavorite = star.dataset.favorite === 'true';
-        star.dataset.favorite =!isFavorite;
         toggleFavorite(cardId, userId);
       });
     });
@@ -80,8 +91,12 @@
       })
     .then(data => {
         console.log("Server Response:", data);
-        // Refresh the page after successful toggle
-        location.reload();
+        const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
+        if (data.isFavorite) {
+          star.style.color = 'yellow';
+        } else {
+          star.style.color = 'gray';
+        }
       })
     .catch(error => {
         console.error('Error toggling favorite:', error);
