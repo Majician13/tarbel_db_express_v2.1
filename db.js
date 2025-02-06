@@ -22,7 +22,6 @@ const favorites = sequelize.define('favorites', {
       type: DataTypes.INTEGER,
       allowNull: false
   },
-  // Add the missing columns here:
   title: {
       type: DataTypes.TEXT,
       allowNull: true

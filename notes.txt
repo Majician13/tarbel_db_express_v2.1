@@ -1,13 +1,95 @@
-Card borders are no longer colored by subject.
+ *   Card borders are no longer colored by subject.
+
 Favorites page: 
  *   Card needs all headers and data
  *   Card needs favorites stars and ability to remove card from favorites
 
     User needs ability to include different lists other than favorites (Possibly openers, closers, etc...)
 
-
  *  Stars on /all page should toggle immediately when clicked.  Currently if highlighted already, they stay highlighted if clicked (just a different highlight).  If not highlighted, they should be highlighted immediately when clicked. 
 
     Will update config.json with appropriate passwords once in production.  Just Testing ATM.
 
     
+    User Lists requirements:
+Understanding the Requirements
+
+User Interface (UI) for List Management: We'll need a way for users to create, edit, and delete lists. This could be a simple form or a more interactive interface.
+
+Database Schema: We'll need to update the database schema to store lists. This will likely involve a new table to store list names and a way to associate cards with lists (e.g., a many-to-many relationship).
+
+Backend Logic: We'll need to add backend logic to handle list creation, editing, deletion, and adding cards to lists.
+
+Overview of the Solution
+
+UI for List Management: We'll add a new page or section to the existing UI where users can manage their lists. This will include forms for creating and editing lists, and buttons or links for deleting lists.
+
+Database Update: We'll create a new table called lists with columns for list_id, user_id, and list_name. We'll also create a table called card_lists with columns for card_id and list_id to represent the many-to-many relationship between cards and lists.
+
+Backend API: We'll add new API endpoints to handle the following:
+
+Creating a new list
+Editing an existing list
+Deleting a list
+Adding a card to a list
+Removing a card from a list
+Fetching all lists for a user
+Fetching all cards in a list
+Code and Implementation Instructions
+
+1. UI for List Management
+
+Create a new EJS template file (e.g., lists.ejs) with forms for creating and editing lists.
+Add a new route in index.js to serve this template.
+2. Database Update
+
+Create the lists table:
+SQL
+
+CREATE TABLE lists (
+    list_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(user_id),
+    list_name VARCHAR(255) NOT NULL
+);
+Create the card_lists table:
+SQL
+
+CREATE TABLE card_lists (
+    card_id INTEGER REFERENCES tarbell(id),
+    list_id INTEGER REFERENCES lists(list_id),
+    PRIMARY KEY (card_id, list_id)
+);
+3. Backend API
+
+Add new API endpoints in index.js to handle list and card-list operations.
+Use the db object to interact with the database.
+Example API Endpoint (Adding a card to a list)
+
+JavaScript
+
+app.post('/add-card-to-list', requireAuth, async (req, res) => {
+    const userId = req.session.user.user_id;
+    const { cardId, listId } = req.body;
+
+    try {
+        await db.card_lists.create({
+            card_id: cardId,
+            list_id: listId,
+        });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error adding card to list:', error);
+        res.status(500).json({ success: false, error: 'Failed to add card to list' });
+    }
+});
+Additional Considerations
+
+Error Handling: Implement robust error handling for database operations and API requests.
+Security: Ensure that users can only access and modify their own lists.
+UI/UX: Design a user-friendly interface for managing lists and adding cards.
+Next Steps
+
+Implement the UI for list management.
+Update the database schema.
+Implement the backend API endpoints.
+Test the new functionality thoroughly.

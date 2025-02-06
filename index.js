@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const config = require('./config.json');
-const db = require('./db'); // Import the db.js file
+const db = require('./db'); // Import the db.js file for database operations
 
 const app = express();
 const port = 3000;
@@ -21,9 +21,9 @@ const pool = new pg.Pool({
 
 // Set up express to use EJS for templating
 app.set('view engine', 'ejs');
-app.use(express.urlencoded({extended: true})); // to parse form data
+app.use(express.urlencoded({ extended: true })); // to parse form data
 app.use(express.static('public')); // to serve static files
-app.use(express.json()); // to serve
+app.use(express.json()); // to parse JSON request bodies
 
 // Configure session middleware with PostgreSQL store
 app.use(
@@ -65,19 +65,19 @@ app.get('/', (req, res) => {
         res.redirect('/all');
     } else {
         // User is not logged in, render the home page
-        res.render('home', {user: req.session.user});
+        res.render('home', { user: req.session.user });
     }
 });
 
 // Register routes
 app.get('/register', (req, res) => {
     console.log("Register route reached");
-    res.render('register', {user: req.session.user});
+    res.render('register', { user: req.session.user });
 });
 
 app.post('/register', async (req, res) => {
     console.log("Register POST route reached");
-    const {username, password} = req.body;
+    const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const query = 'INSERT INTO users (username, password_hash) VALUES ($1, $2)';
@@ -92,7 +92,7 @@ app.post('/register', async (req, res) => {
 // Login routes
 app.get('/login', (req, res) => {
     console.log("Login route reached");
-    res.render('login', {user: req.session.user});
+    res.render('login', { user: req.session.user });
 });
 
 app.post('/login', async (req, res) => {
@@ -105,11 +105,11 @@ app.post('/login', async (req, res) => {
         console.log("Number of Rows:", result.rows.length);
 
         if (result.rows.length > 0) {
-            const user = result.rows; // Assign the first row to user
+            const user = result.rows[0]; // Assign the first row to user
             console.log("Fetched user:", user);
             console.log("Password:", password);
             console.log("Password Hash:", user.password_hash);
-            
+
             // Access password_hash directly from user object
             const match = await bcrypt.compare(password, user.password_hash);
 
@@ -135,7 +135,7 @@ app.get('/search', requireAuth, async (req, res) => {
         const query = req.query.query;
         const results = await searchDatabase(query);
         const subjects = [...new Set(results.map((result) => result.subject))];
-        res.render('results', {results, subjects, req, user: req.session.user});
+        res.render('results', { results, subjects, req, user: req.session.user });
     } catch (error) {
         console.error('Error searching database:', error);
         res.status(500).send('Error searching database');
@@ -153,14 +153,14 @@ app.get('/all', requireAuth, async (req, res) => {
 
         // Fetch the user's favorite card IDs
         const favorites = await db.favorites.findAll({
-            where: {user_id: userId},
+            where: { user_id: userId },
             attributes: ['card_id']
         });
         const favoriteCardIds = favorites.map(favorite => favorite.card_id);
 
         // Mark cards as favorite
         const updatedResults = results.map(result => ({
-        ...result,
+          ...result,
             isFavorite: favoriteCardIds.includes(result.id)
         }));
 
@@ -197,7 +197,7 @@ app.post('/toggle-favorite', async (req, res) => {
 
             // Try to delete the record directly using user_id and card_id
             const deletedRowCount = await db.favorites.destroy({
-                where: {user_id: userId, card_id: cardId}
+                where: { user_id: userId, card_id: cardId }
             });
 
             let isFavorite;
@@ -220,15 +220,15 @@ app.post('/toggle-favorite', async (req, res) => {
             }
 
             console.log("Toggle favorite successful");
-            res.json({success: true, isFavorite});
+            res.json({ success: true, isFavorite });
         } catch (error) {
             console.error('Error toggling favorite:', error);
-            res.status(500).json({success: false, error: 'Failed to toggle favorite'});
+            res.status(500).json({ success: false, error: 'Failed to toggle favorite' });
         }
     } else {
         console.log("User not logged in or cardId is missing");
         // Handle case where userId or cardId is undefined
-        res.status(401).json({success: false, error: 'User not logged in or cardId is missing'});
+        res.status(401).json({ success: false, error: 'User not logged in or cardId is missing' });
     }
 });
 
@@ -250,7 +250,7 @@ app.get('/favorites', requireAuth, async (req, res) => {
 
         // Add isFavorite property to each card
         const updatedCards = cards.map(card => ({
-      ...card.dataValues,
+          ...card.dataValues,
             isFavorite: true // Since these are favorites, set to true
         }));
 
@@ -262,6 +262,7 @@ app.get('/favorites', requireAuth, async (req, res) => {
     }
 });
 
+// Logout route
 app.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -280,16 +281,16 @@ async function getAllEntries(sort, order) {
     console.log("getAllEntries function reached");
     const client = await pool.connect();
     try {
-      // Use template literals to construct the SQL query
-      const sql = `SELECT * FROM tarbell ORDER BY ${sort} ${order}`;
-      const result = await client.query(sql); // No need to pass sort and order as parameters
-      console.log("Raw data from database:", result.rows);
-      return result.rows;
+        // Use template literals to construct the SQL query
+        const sql = `SELECT * FROM tarbell ORDER BY ${sort} ${order}`;
+        const result = await client.query(sql); // No need to pass sort and order as parameters
+        console.log("Raw data from database:", result.rows);
+        return result.rows;
     } catch (error) {
-      console.error('Error executing SQL query:', error);
-      throw error;
+        console.error('Error executing SQL query:', error);
+        throw error;
     } finally {
-      client.release();
+        client.release();
     }
 }
 
@@ -340,7 +341,7 @@ app.get('/styles.css', (req, res) => {
 
 // Start the server
 const server = app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+    console.log(`Server listening on port ${port}`);
 });
 
 // Socket.IO setup
@@ -348,8 +349,8 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 io.on("connection", (socket) => {
-  console.log("User connected");
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
+    console.log("User connected");
+    socket.on("disconnect", () => {
+        console.log("User disconnected");
+    });
 });

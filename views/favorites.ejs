@@ -3,7 +3,7 @@
 <head>
   <title>Favorites</title>
   <link rel="stylesheet" href="/styles.css">
-  <script src="/socket.io/socket.io.js"></script> </head>
+  <script src="/socket.io/socket.io.js"></script>  </head>
 <body>
   <a href="/all" class="show-all-link">Show All Entries</a>
   <form action="/logout" method="POST" style="position: absolute; top: 30px; right: 10px;">
@@ -24,7 +24,7 @@
         <span 
           class="favorite-star" 
           data-card-id="<%= favorite.id %>" 
-          data-favorite="<%= favorite.isFavorite %>" 
+          data-favorite="<%= favorite.isFavorite %>"  // Store favorite status in data attribute
           style="color: <%= favorite.isFavorite? 'yellow': 'gray' %>;"
           >
           &#9733;
@@ -48,16 +48,15 @@
   <a href="/">Back to Search</a>
 
   <script>
-    // Initialize Socket.IO client
+    // Initialize Socket.IO client to listen for real-time updates
     const socket = io();
 
-    // Listen for 'favorite-removed' event
+    // Event listener for 'favorite-removed' events, triggered when a favorite is removed elsewhere
     socket.on('favorite-removed', (removedCardId) => {
-      // Find the card element with the matching data-card-id
+      // Find the card element to remove using its data-card-id
       const cardToRemove = document.querySelector(`[data-card-id="${removedCardId}"]`);
       if (cardToRemove) {
-        // Remove the card element from the DOM
-        cardToRemove.remove();
+        cardToRemove.remove(); // Remove the card from the DOM
       }
     });
 
@@ -65,13 +64,14 @@
     stars.forEach(star => {
       star.addEventListener('click', () => {
         const cardId = star.dataset.cardId;
-        const userId = <%= user? user.user_id: null %>
+        const userId = <%= user? user.user_id: null %>; // Get User ID from server-side rendering
         console.log("STAR User ID:", userId);
         console.log("STAR Card ID:", cardId);
         toggleFavorite(cardId, userId);
       });
     });
 
+    // Function to toggle favorite status via AJAX call to the server
     function toggleFavorite(cardId, userId) {
       console.log("RESULTS.EJS User ID:", userId);
       console.log("RESULTS.EJS Card ID:", cardId);
@@ -82,23 +82,27 @@
         },
         body: JSON.stringify({ cardId: cardId, userId: userId })
       })
-    .then(response => {
+      .then(response => {
         if (!response.ok) {
           console.error('Network response was not ok');
-          return; // Prevent further execution of the promise chain
+          return; // Stop execution to avoid errors
         }
         return response.json();
       })
-    .then(data => {
+      .then(data => {
         console.log("Server Response:", data);
         const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
         if (data.isFavorite) {
-          star.style.color = 'yellow';
+          star.style.color = 'yellow'; // Update star color based on server response
         } else {
           star.style.color = 'gray';
         }
+        // Emit socket.io event if favorite was removed on this client
+        if (!data.isFavorite) {
+            socket.emit('favorite-removed', cardId);
+        }
       })
-    .catch(error => {
+      .catch(error => {
         console.error('Error toggling favorite:', error);
       });
     }

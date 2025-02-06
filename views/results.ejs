@@ -6,104 +6,117 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-<a href="/all" class="show-all-link">Show All Entries</a>
-<form action="/logout" method="POST" style="position: absolute; top: 30px; right: 10px;">
-  <button type="submit">Log Out</button>
-</form>
-<a href="/favorites" class="show-favorites-link">Show Favorites</a>
+    <a href="/all" class="show-all-link">Show All Entries</a>
 
-<h1>Search Results</h1>
+    <form action="/logout" method="POST" style="position: absolute; top: 30px; right: 10px;">
+      <button type="submit">Log Out</button>
+    </form>
 
-<form action="/search" method="GET">
-    <input type="text" name="query" placeholder="Enter search term">
-    <button type="submit">Search</button>
-</form>
+    <a href="/favorites" class="show-favorites-link">Show Favorites</a>
 
-<% if (results.length === 0) { %>
-  <p>No results found.</p>
-  <% } else { %>
-  <div class="results-container">
-    <div class="card-container">
-      <% results.forEach(result => { %>
-        <div class="card" data-card-id="<%= result.id %>" data-subject="<%= result.subject %>">
-          <div class="card-header">
-              <span class="card-title"><%= result.title %></span>
-              <span class="favorite-star" data-card-id="<%= result.id %>" style="color: <%= result.isFavorite? 'yellow': 'gray' %>;">&#9733;</span>
-          </div>
-          <div class="card-body" data-subject="<%= result.subject %>">
-              <p>Lesson: <%= result.lesson %></p>
-              <p>Subject: <%= result.subject %></p>
-              <p>Timestamp: <%= result.timestamp %></p>
-              <p>Volume: <%= result.volume %></p>
-              <p>Page: <%= result.page %></p>
-              <p>Description: <%= result.description %></p>
-              <p>Book Description: <%= result.book_description %></p>
-              <p>Inventor: <%= result.inventor %></p>
-          </div>
+    <h1>Search Results</h1>
+
+    <form action="/search" method="GET">
+        <input type="text" name="query" placeholder="Enter search term">
+        <button type="submit">Search</button>
+    </form>
+
+    <% if (results.length === 0) { %>
+      <p>No results found.</p>
+      <% } else { %>
+      <div class="results-container">
+        <div class="card-container">
+          <% results.forEach(result => { %>
+            <div class="card" data-card-id="<%= result.id %>" data-subject="<%= result.subject %>">
+              <div class="card-header">
+                  <span class="card-title"><%= result.title %></span>
+                  <span class="favorite-star" data-card-id="<%= result.id %>" style="color: <%= result.isFavorite? 'yellow': 'gray' %>;">&#9733;</span>
+              </div>
+              <div class="card-body" data-subject="<%= result.subject %>">
+                  <p>Lesson: <%= result.lesson %></p>
+                  <p>Subject: <%= result.subject %></p>
+                  <p>Timestamp: <%= result.timestamp %></p>
+                  <p>Volume: <%= result.volume %></p>
+                  <p>Page: <%= result.page %></p>
+                  <p>Description: <%= result.description %></p>
+                  <p>Book Description: <%= result.book_description %></p>
+                  <p>Inventor: <%= result.inventor %></p>
+              </div>
+            </div>
+          <% }); %>
         </div>
-      <% }); %>
-    </div>
-  </div>
-  <% } %>
+      </div>
+      <% } %>
 
-<a href="/">Back to Search</a>
+    <a href="/">Back to Search</a>
 
-<script>
-    const checkboxes = document.querySelectorAll('input[name="subject"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const selectedSubjects = Array.from(checkboxes)
-              .filter(checkbox => checkbox.checked)
-              .map(checkbox => checkbox.value);
+    <script>
+        // Get all subject checkboxes
+        const checkboxes = document.querySelectorAll('input[name="subject"]');
 
-            const form = document.getElementById('filterForm');
-            form.action = '/all?' + selectedSubjects.map(subject => `subject=${subject}`).join('&');
+        // Add event listener to each checkbox for filtering
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                // Get selected subjects
+                const selectedSubjects = Array.from(checkboxes)
+                  .filter(checkbox => checkbox.checked)
+                  .map(checkbox => checkbox.value);
+
+                // Build the query string for filtering
+                const form = document.getElementById('filterForm');
+                form.action = '/all?' + selectedSubjects.map(subject => `subject=${subject}`).join('&');
+            });
         });
-    });
 
-    const stars = document.querySelectorAll('.favorite-star');
-    stars.forEach(star => {
-        star.addEventListener('click', () => {
-            const cardId = star.dataset.cardId;
-            const userId = <%= user? user.user_id: null %>;
-            console.log("STAR User ID:", userId);
-            console.log("STAR Card ID:", cardId);
-            star.classList.toggle('active');
-            toggleFavorite(cardId, userId);
+        // Get all favorite stars
+        const stars = document.querySelectorAll('.favorite-star');
+
+        // Add event listener to each star for toggling favorites
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const cardId = star.dataset.cardId;
+                // Retrieve user ID, handling cases where user might not be logged in
+                const userId = <%= user? user.user_id: null %>;
+                console.log("STAR User ID:", userId);
+                console.log("STAR Card ID:", cardId);
+                star.classList.toggle('active'); // visually toggle star appearance
+                toggleFavorite(cardId, userId);
+            });
         });
-    });
 
-    function toggleFavorite(cardId, userId) {
-      console.log("RESULTS.EJS User ID:", userId);
-      console.log("RESULTS.EJS Card ID:", cardId);
-      fetch('/toggle-favorite', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({cardId: cardId, userId: userId})
-      })
-    .then(response => {
-          if (!response.ok) {
-              console.error('Network response was not ok');
-              return; // Prevent further execution of the promise chain
-          }
-          return response.json();
-      })
-    .then(data => {
-          console.log("Server Response:", data);
-          const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
-          if (data.isFavorite) {
-              star.style.color = 'yellow';
-          } else {
-              star.style.color = 'gray';
-          }
-      })
-    .catch(error => {
-          console.error('Error toggling favorite:', error);
-      });
-  }
-</script>
+
+        // Function to toggle favorite status via AJAX call
+        function toggleFavorite(cardId, userId) {
+          console.log("RESULTS.EJS User ID:", userId);
+          console.log("RESULTS.EJS Card ID:", cardId);
+            fetch('/toggle-favorite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({cardId: cardId, userId: userId})
+            })
+          .then(response => {
+                if (!response.ok) {
+                    console.error('Network response was not ok');
+                    return; // Prevent further execution of the promise chain
+                }
+                return response.json();
+            })
+          .then(data => {
+                console.log("Server Response:", data);
+                const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
+                if (data.isFavorite) {
+                    star.style.color = 'yellow';
+                } else {
+                    star.style.color = 'gray';
+                }
+            })
+          .catch(error => {
+                console.error('Error toggling favorite:', error);
+            });
+        }
+    </script>
 
 </body>
 </html>
