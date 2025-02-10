@@ -1,44 +1,46 @@
+<!DOCTYPE html>
+<html>
 <%- include('./partials/header') %>
-<title>Results</title>
+<title>Random Card</title>
 <body>
-  
 
-  <h1>Search Results</h1>
+  <h1>Random Card</h1>
 
-  
-
-  <% if (results.length === 0) { %>
-    <p>No results found.</p>
-  <% } else { %>
-    <div class="results-container">
-      <div class="card-container">
-        <% results.forEach(result => { %>
-          <div class="card" data-card-id="<%= result.id %>" data-subject="<%= result.subject %>">
-            <div class="card-header">
-              <span class="card-title">
-                <%= result.title %>
-              </span>
-              <span class="favorite-star" data-card-id="<%= result.id %>" style="color: <%= result.isFavorite ? 'yellow' : 'gray' %>;">&#9733;</span>
-            </div>
-            <div class="card-body" data-subject="<%= result.subject %>">
-              <input type="checkbox" class="card-checkbox" data-card-id="<%= result.id %>">
-              <p>Lesson: <%= result.lesson %></p>
-              <p>Subject: <%= result.subject %></p>
-              <p>Timestamp: <%= result.timestamp %></p>
-              <p>Volume: <%= result.volume %></p>
-              <p>Page: <%= result.page %></p>
-              <p>Description: <%= result.description %></p>
-              <p>Book Description: <%= result.book_description %></p>
-              <p>Inventor: <%= result.inventor %></p>
-            </div>
-          </div>
-        <% }); %>
+  <div class="random-card-container">
+    <% if (card) { %>
+      <div class="card random-card" data-card-id="<%= card.id %>">
+        <div class="card-header">
+          <span class="card-title">
+            <h1><strong><%= card.title %></strong></h1>
+          </span>
+          <span class="favorite-star" data-card-id="<%= card.id %>" style="color: <%= card.isFavorite? 'yellow': 'gray' %>;">&#9733;</span>
+        </div>
+        <div class="card-body">
+          <input type="checkbox" class="card-checkbox" data-card-id="<%= card.id %>">
+          <p><strong>Lesson:</strong> <%= card.lesson %></p>
+          <p><strong>Subject:</strong> <%= card.subject %></p>
+          <p><strong>Timestamp:</strong> <%= card.timestamp %></p>
+          <p><strong>Volume:</strong> <%= card.volume %></p>
+          <p><strong>Page:</strong> <%= card.page %></p>
+          <p><strong>Description:</strong> <%= card.description %></p>
+          <p><strong>Book Description:</strong> <%= card.book_description %></p>
+          <p><strong>Inventor:</strong> <%= card.inventor %></p>
+        </div>
       </div>
-    </div>
+    <% } else { %>
+      <p>No random card found.</p>
+    <% } %>
+  </div>
 
-    
-  <% } %>
-
+  <div class="list-selection">
+    <label for="list-select">Select a list:</label>
+    <select id="list-select">
+      <% lists.forEach(list => { %>
+        <option value="<%= list.list_id %>"><%= list.list_name %></option>
+      <% }); %>
+    </select>
+    <button id="add-to-list-button">Add to List</button>
+  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -154,5 +156,4 @@
   </script>
 
 </body>
-
 </html>

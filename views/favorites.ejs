@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Favorites</title>
-  <link rel="stylesheet" href="/styles.css">
-  <script src="/socket.io/socket.io.js"></script>  </head>
+<%- include('./partials/header') %>
+<title>Favorites</title>
 <body>
-  <a href="/all" class="show-all-link">Show All Entries</a>
-  <form action="/logout" method="POST" style="position: absolute; top: 30px; right: 10px;">
-    <button type="submit">Log Out</button>
-  </form>
-  <a href="/favorites" class="show-favorites-link">Show Favorites</a>
 
   <h1>Favorites</h1>
 
@@ -45,7 +36,6 @@
   </div>
   <% } %>
 
-  <a href="/">Back to Search</a>
 
   <script>
     // Initialize Socket.IO client to listen for real-time updates

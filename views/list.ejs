@@ -1,0 +1,134 @@
+<%- include('./partials/header') %>
+
+<body>
+  <h1>List: <%= list.list_name %></h1>
+
+  <% if (cards.length === 0) { %>
+    <p>No cards found in this list.</p>
+  <% } else { %>
+    <div class="results-container">
+      <div class="card-container">
+        <% cards.forEach(card => { %>
+          <div class="card" data-card-id="<%= card.id %>" data-subject="<%= card.subject %>">
+            <div class="card-header">
+              <span class="card-title">
+                <%= card.title %>
+              </span>
+              <span class="favorite-star" data-card-id="<%= card.id %>" style="color: <%= card.isFavorite? 'yellow': 'gray' %>;">&#9733;</span>
+            </div>
+            <div class="card-body" data-subject="<%= card.subject %>">
+              <input type="checkbox" class="card-checkbox" data-card-id="<%= card.id %>">
+              <p>Lesson: <%= card.lesson %></p>
+              <p>Subject: <%= card.subject %></p>
+              <p>Timestamp: <%= card.timestamp %></p>
+              <p>Volume: <%= card.volume %></p>
+              <p>Page: <%= card.page %></p>
+              <p>Description: <%= card.description %></p>
+              <p>Book Description: <%= card.book_description %></p>
+              <p>Inventor: <%= card.inventor %></p>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    
+    <script>
+      document.getElementById('remove-from-list-button').addEventListener('click', async () => {
+        const selectedCardIds = [];
+        document.querySelectorAll('.card-checkbox:checked').forEach(checkbox => {
+          selectedCardIds.push(checkbox.dataset.cardId);
+        });
+
+        if (selectedCardIds.length > 0) {
+          try {
+            const response = await fetch('/remove-cards-from-list', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                cardIds: selectedCardIds,
+                listId: <%= list.list_id %>
+              })
+            });
+
+            if (response.ok) {
+              // Optionally display a success message
+              alert('Cards removed from list successfully!');
+              // Reload the page to reflect the changes
+              location.reload();
+            } else {
+              console.error('Failed to remove cards from list');
+            }
+          } catch (error) {
+            console.error('Error removing cards from list:', error);
+          }
+        } else {
+          alert('Please select at least one card to remove.');
+        }
+      });
+    </script>
+  <% } %>
+
+  
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("DOM fully loaded and parsed.");
+
+      // Get all favorite stars
+      const stars = document.querySelectorAll('.favorite-star');
+
+      // Add event listener to each star for toggling favorites
+      stars.forEach(star => {
+        star.addEventListener('click', () => {
+          const cardId = star.dataset.cardId;
+          const userId = <%= user? user.user_id: null %>;
+          console.log("STAR User ID:", userId);
+          console.log("STAR Card ID:", cardId);
+          star.classList.toggle('active'); // visually toggle star appearance
+          toggleFavorite(cardId, userId);
+        });
+      });
+
+      // Function to toggle favorite status via AJAX call
+      function toggleFavorite(cardId, userId) {
+        console.log("RESULTS.EJS User ID:", userId);
+        console.log("RESULTS.EJS Card ID:", cardId);
+        fetch('/toggle-favorite', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              cardId: cardId,
+              userId: userId
+            })
+          })
+        .then(response => {
+            if (!response.ok) {
+              console.error('Network response was not ok');
+              return;
+            }
+            return response.json();
+          })
+        .then(data => {
+            console.log("Server Response:", data);
+            const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
+            if (data.isFavorite) {
+              star.style.color = 'yellow';
+            } else {
+              star.style.color = 'gray';
+            }
+          })
+        .catch(error => {
+            console.error('Error toggling favorite:', error);
+          });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

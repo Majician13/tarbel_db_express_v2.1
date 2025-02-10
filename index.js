@@ -105,7 +105,7 @@ app.post('/login', async (req, res) => {
         console.log("Number of Rows:", result.rows.length);
 
         if (result.rows.length > 0) {
-            const user = result.rows[0]; // Assign the first row to user
+            const user = result.rows[0]; // Assign the first row to user by making sure it ends in [0]
             console.log("Fetched user:", user);
             console.log("Password:", password);
             console.log("Password Hash:", user.password_hash);
@@ -135,7 +135,14 @@ app.get('/search', requireAuth, async (req, res) => {
         const query = req.query.query;
         const results = await searchDatabase(query);
         const subjects = [...new Set(results.map((result) => result.subject))];
-        res.render('results', { results, subjects, req, user: req.session.user });
+
+        // Fetch the user's lists
+        const userId = req.session.user.user_id;
+        const lists = await db.lists.findAll({
+            where: { user_id: userId }
+        });
+
+        res.render('results', { results, subjects, req, user: req.session.user, lists, page: 'results' });
     } catch (error) {
         console.error('Error searching database:', error);
         res.status(500).send('Error searching database');
@@ -160,11 +167,16 @@ app.get('/all', requireAuth, async (req, res) => {
 
         // Mark cards as favorite
         const updatedResults = results.map(result => ({
-          ...result,
+      ...result,
             isFavorite: favoriteCardIds.includes(result.id)
         }));
 
         let subjects = [...new Set(results.map((result) => result.subject))];
+
+        // Fetch the user's lists
+        const lists = await db.lists.findAll({
+            where: { user_id: userId }
+        });
 
         // Render the 'results.ejs' view to display all cards
         res.render('results', {
@@ -173,11 +185,52 @@ app.get('/all', requireAuth, async (req, res) => {
             order,
             subjects,
             req,
-            user: req.session.user
+            user: req.session.user,
+            lists: lists, // Pass the lists to the view
+            page: 'results'
         });
     } catch (error) {
         console.error('Error fetching all entries:', error);
         res.status(500).send('Error fetching all entries');
+    }
+});
+
+app.get('/random', requireAuth, async (req, res) => {
+    console.log("Random card route reached");
+    try {
+        const userId = req.session.user.user_id;
+
+        // Fetch a random card from the database
+        const randomCard = await db.tarbell.findOne({
+            order: db.tarbell.sequelize.random(), // Correct way to call the random function
+          });
+
+        const favorites = await db.favorites.findAll({
+            where: { user_id: userId },
+            attributes: ['card_id']
+        });
+        const favoriteCardIds = favorites.map(favorite => favorite.card_id);
+
+        // Mark cards as favorite
+        const updatedCard = {
+          ...randomCard.dataValues,
+            isFavorite: favoriteCardIds.includes(randomCard.dataValues.id)
+        }
+
+        // Fetch the user's lists
+        const lists = await db.lists.findAll({
+            where: { user_id: userId }
+        });
+
+        res.render('random', {
+            card: updatedCard,
+            user: req.session.user,
+            lists: lists,
+            page: 'random'
+        });
+    } catch (error) {
+        console.error('Error fetching random card:', error);
+        res.status(500).send('Error fetching random card');
     }
 });
 
@@ -236,31 +289,42 @@ app.post('/toggle-favorite', async (req, res) => {
 app.get('/favorites', requireAuth, async (req, res) => {
     console.log("Favorites route reached");
     try {
-        const userId = req.session.user.user_id;
-        const favorites = await db.favorites.findAll({
-            where: { user_id: userId },
-            attributes: ['card_id', 'lesson', 'subject', 'title', 'timestamp', 'volume', 'page', 'description', 'book_description', 'inventor'],
-        });
-
-        const cardIds = favorites.map((favorite) => favorite.card_id);
-        console.log("Favorite CardIds: ", cardIds);
-        const cards = await db.tarbell.findAll({
-            where: { id: cardIds },
-        });
-
-        // Add isFavorite property to each card
-        const updatedCards = cards.map(card => ({
-          ...card.dataValues,
-            isFavorite: true // Since these are favorites, set to true
-        }));
-
-        console.log("Cards: ", updatedCards);
-        res.render('favorites', { favorites: updatedCards, user: req.session.user });
+      const userId = req.session.user.user_id;
+      const favorites = await db.favorites.findAll({
+        where: { user_id: userId },
+        attributes: ['card_id', 'lesson', 'subject', 'title', 'timestamp', 'volume', 'page', 'description', 'book_description', 'inventor'],
+      });
+  
+      const cardIds = favorites.map((favorite) => favorite.card_id);
+      console.log("Favorite CardIds: ", cardIds);
+      const cards = await db.tarbell.findAll({
+        where: { id: cardIds },
+      });
+  
+      // Add isFavorite property to each card
+      const updatedCards = cards.map(card => ({
+      ...card.dataValues,
+        isFavorite: true // Since these are favorites, set to true
+      }));
+  
+      console.log("Cards: ", updatedCards);
+  
+      // Fetch the user's lists
+      const lists = await db.lists.findAll({
+        where: { user_id: userId }
+      });
+  
+      res.render('favorites', {
+        favorites: updatedCards,
+        user: req.session.user,
+        lists: lists, // Pass the lists to the template
+        page: "favorites" 
+      });
     } catch (error) {
-        console.error('Error fetching favorites:', error);
-        res.status(500).send('Error fetching favorites');
+      console.error('Error fetching favorites:', error);
+      res.status(500).send('Error fetching favorites');
     }
-});
+  });
 
 // Logout route
 app.post('/logout', (req, res) => {
@@ -272,6 +336,24 @@ app.post('/logout', (req, res) => {
             res.redirect('/');
         }
     });
+});
+
+// get lists route
+app.get('/lists', requireAuth, async (req, res) => {
+    const userId = req.session.user.user_id;
+    try {
+        const userLists = await db.lists.findAll({
+            where: { user_id: userId }
+        });
+        res.render('lists', {
+            lists: userLists,
+            user: req.session.user,
+            page: 'lists' // Add this line to pass the 'page' variable
+        });
+    } catch (error) {
+        console.error('Error fetching lists:', error);
+        res.status(500).send('Error fetching lists');
+    }
 });
 
 // --- Helper functions ---
@@ -339,6 +421,151 @@ app.get('/styles.css', (req, res) => {
     });
 });
 
+// Add cards to list route
+app.post('/add-cards-to-list', requireAuth, async (req, res) => {
+    console.log("add-cards-to-list route reached"); // Log for debugging
+    const { cardIds, listId } = req.body;
+    console.log("cardIds:", cardIds); // Log cardIds for debugging
+    console.log("listId:", listId); // Log listId for debugging
+    try {
+        const userId = req.session.user.user_id;
+        // Check if the list belongs to the user
+        const list = await db.lists.findOne({
+            where: { list_id: listId, user_id: userId }
+        });
+        if (!list) {
+            return res.status(404).json({ success: false, error: 'List not found' });
+        }
+        // Insert the cards into the card_lists table
+        const insertPromises = cardIds.map(cardId => {
+            return db.card_lists.create({
+                card_id: cardId,
+                list_id: listId
+            });
+        });
+        await Promise.all(insertPromises);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error adding cards to list:', error);
+        res.status(500).json({ success: false, error: 'Failed to add cards to list' });
+    }
+});
+
+app.get('/list/:id', requireAuth, async (req, res) => {
+    const listId = req.params.id;
+    try {
+        const list = await db.lists.findOne({
+            where: { list_id: listId, user_id: req.session.user.user_id }
+        });
+        if (!list) {
+            return res.status(404).send('List not found');
+        }
+        // Fetch the cards associated with this list
+        const cardIds = await db.card_lists.findAll({
+            where: { list_id: listId },
+            attributes: ['card_id']
+        });
+        const cards = await db.tarbell.findAll({
+            where: { id: cardIds.map(c => c.card_id) }
+        });
+
+        // Fetch the user's lists
+        const lists = await db.lists.findAll({
+            where: { user_id: req.session.user.user_id }
+        });
+
+        res.render('list', { list, cards, user: req.session.user, lists, page: 'list' });
+    } catch (error) {
+        console.error('Error fetching list:', error);
+        res.status(500).send('Error fetching list');
+    }
+});
+
+app.post('/remove-cards-from-list', requireAuth, async (req, res) => {
+    const { cardIds, listId } = req.body;
+    try {
+        // Delete the entries from the card_lists table
+        const deletePromises = cardIds.map(cardId => {
+            return db.card_lists.destroy({
+                where: {
+                    card_id: cardId,
+                    list_id: listId
+                }
+            });
+        });
+        await Promise.all(deletePromises);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error removing cards from list:', error);
+        res.status(500).json({ success: false, error: 'Failed to remove cards from list' });
+    }
+});
+
+// Create a new list
+app.post('/create-list', requireAuth, async (req, res) => {
+    console.log("create-list route reached"); // Log for debugging
+    const userId = req.session.user.user_id;
+    const listName = req.body.listName; // Make sure this matches the form field name
+    console.log("listName:", listName); // Log list name for debugging
+    try {
+        const newList = await db.lists.create({
+            user_id: userId,
+            list_name: listName
+        });
+        // Optionally, you can redirect to the /lists page or send a JSON response
+        res.redirect('/lists'); // Redirect to the lists page
+        // Or, send a JSON response
+        // res.json({ success: true, listId: newList.list_id });
+    } catch (error) {
+        console.error('Error creating list:', error);
+        res.status(500).json({ success: false, error: 'Failed to create list' });
+    }
+});
+
+// Edit an existing list
+app.post('/edit-list', requireAuth, async (req, res) => {
+    console.log("edit-list route reached"); // Log for debugging
+    const userId = req.session.user.user_id;
+    const { listId, newListName } = req.body;
+    console.log("listId:", listId); // Log list ID for debugging
+    console.log("newListName:", newListName); // Log new list name for debugging
+    try {
+        const updatedList = await db.lists.update(
+            { list_name: newListName },
+            { where: { list_id: listId, user_id: userId } }
+        );
+        if (updatedList === 1) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, error: 'List not found' });
+        }
+    } catch (error) {
+        console.error('Error editing list:', error);
+        res.status(500).json({ success: false, error: 'Failed to edit list' });
+    }
+});
+
+// Delete a list
+app.post('/delete-list', requireAuth, async (req, res) => {
+    console.log("delete-list route reached"); // Log for debugging
+    const userId = req.session.user.user_id;
+    const listId = req.body.listId;
+    console.log("listId:", listId); // Log list ID for debugging
+    try {
+        const deletedList = await db.lists.destroy({
+            where: { list_id: listId, user_id: userId }
+        });
+        if (deletedList === 1) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, error: 'List not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting list:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete list' });
+    }
+});
+
 // Start the server
 const server = app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
@@ -352,5 +579,19 @@ io.on("connection", (socket) => {
     console.log("User connected");
     socket.on("disconnect", () => {
         console.log("User disconnected");
+    });
+});
+
+// Route to serve the styles.css file
+app.get('/styles.css', (req, res) => {
+    console.log("styles.css route reached");
+    fs.readFile('public/styles.css', (err, data) => {
+        if (err) {
+            console.error('Error reading styles.css:', err);
+            res.status(500).send('Error loading stylesheet');
+            return;
+        }
+        res.setHeader('Content-Type', 'text/css');
+        res.send(data);
     });
 });

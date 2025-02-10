@@ -1,0 +1,94 @@
+<%- include('partials/header', { user: user }) %>
+
+<h2>My Lists</h2>
+
+<ul id="lists">
+    <% lists.forEach(list => { %>
+    <li>
+        <a href="/list/<%= list.list_id %>">
+            <%= list.list_name %>
+        </a>
+        <button class="edit-list" data-list-id="<%= list.list_id %>">Edit</button>
+        <button class="delete-list" data-list-id="<%= list.list_id %>">Delete</button>
+    </li>
+    <% }); %>
+</ul>
+
+<h3>Create New List</h3>
+<form id="create-list-form" action="/create-list" method="POST"> <input type="text" id="list-name" name="listName" placeholder="List Name" required>
+    <button type="submit">Create List</button>
+</form>
+
+<script>
+    // Function to handle the edit button click
+    async function editList(listId) {
+        const newListName = prompt("Enter new list name:");
+        if (newListName) {
+            try {
+                const response = await fetch('/edit-list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        listId,
+                        newListName
+                    })
+                });
+                if (response.ok) {
+                    // Update the list name in the UI
+                    document.querySelector(`[data-list-id="${listId}"]`).parentElement.querySelector('a').textContent =
+                        newListName;
+                } else {
+                    console.error('Failed to edit list');
+                }
+            } catch (error) {
+                console.error('Error editing list:', error);
+            }
+        }
+    }
+
+    // Function to handle the delete button click
+    async function deleteList(listId) {
+        if (confirm("Are you sure you want to delete this list?")) {
+            try {
+                const response = await fetch('/delete-list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        listId
+                    })
+                });
+                if (response.ok) {
+                    // Remove the list from the UI
+                    document.querySelector(`[data-list-id="${listId}"]`).parentElement.remove();
+                } else {
+                    console.error('Failed to delete list');
+                }
+            } catch (error) {
+                console.error('Error deleting list:', error);
+            }
+        }
+    }
+
+    // Add event listeners to the buttons after the page loads
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.edit-list').forEach(button => {
+            button.addEventListener('click', () => {
+                const listId = button.dataset.listId;
+                editList(listId);
+            });
+        });
+
+        document.querySelectorAll('.delete-list').forEach(button => {
+            button.addEventListener('click', () => {
+                const listId = button.dataset.listId;
+                deleteList(listId);
+            });
+        });
+    });
+</script>
+
+<%- include('partials/footer') %>

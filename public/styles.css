@@ -1,8 +1,33 @@
-/* Style for the link */
+/* Style for the link 
 .show-all-link {
     position: absolute;
     top: 10px;
     right: 10px;
+  }*/
+
+  #header-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    align-items: flex-end; /* Align items to the right */
+  }
+  
+  #header-container > * {
+    margin-bottom: 5px;
+  }
+  
+  #header-container a {
+    display: inline-block;
+    margin-right: 10px;
+  }.list-controls {
+    display: flex;
+    align-items: center;
+  }
+  
+  #list-select {
+    margin-right: 5px;
   }
   
   /* Card styling */

@@ -1,4 +1,4 @@
-const {Sequelize, DataTypes} = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const config = require('./config.json');
 
 // Create a new Sequelize instance
@@ -7,64 +7,70 @@ const sequelize = new Sequelize(config.db.database, config.db.user, config.db.pa
     dialect: 'postgres'
 });
 
+const db = {};
+
+// Assign the Sequelize instance to db.sequelize
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
 // Define the favorites model
 const favorites = sequelize.define('favorites', {
-  id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-  },
-  user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-  },
-  card_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-  },
-  title: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  subject: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  lesson: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  timestamp: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  volume: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  page: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  description: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  book_description: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-  inventor: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  }
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    card_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    title: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    subject: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    lesson: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    timestamp: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    volume: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    page: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    book_description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    inventor: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    }
 }, {
-  timestamps: false // Disable timestamps
+    timestamps: false // Disable timestamps
 });
 
 // Define the Cards model (replace with your actual card details)
 const Cards = sequelize.define('Cards', {
-    // ... your card fields ...
+    //... your card fields...
 });
 
 // Define the tarbell model with freezeTableName option
@@ -114,6 +120,47 @@ const tarbell = sequelize.define('tarbell', {
     timestamps: false // Disable timestamps for tarbell model
 });
 
+// Define the lists model with freezeTableName option
+const lists = sequelize.define('lists', {
+    list_id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    list_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+}, {
+    timestamps: false // Disable timestamps
+});
+
+// Define the card_lists model
+const card_lists = sequelize.define('card_lists', {
+    card_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: tarbell, // Assuming 'tarbell' is your Cards model
+            key: 'id'
+        }
+    },
+    list_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: lists,
+            key: 'list_id'
+        }
+    }
+}, {
+    timestamps: false // Disable timestamps if not needed
+});
+
 // Establish the database connection
 (async () => {
     try {
@@ -122,7 +169,9 @@ const tarbell = sequelize.define('tarbell', {
         // Sync the models with the database
         await favorites.sync();
         await Cards.sync();
-        await tarbell.sync(); // Sync the tarbell model
+        await tarbell.sync(); 
+        await lists.sync(); 
+        await card_lists.sync(); // Sync the new card_lists table
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
@@ -136,5 +185,7 @@ favorites.belongsToMany(tarbell, { through: 'favorites', foreignKey: 'card_id', 
 module.exports = {
     favorites,
     Cards,
-    tarbell // Export the tarbell model
+    tarbell,
+    lists,
+    card_lists // Export the card_lists model
 };

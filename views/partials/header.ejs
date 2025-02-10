@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<div id="header-container">
+  <form action="/search" method="GET">
+    <input type="text" name="query" placeholder="Enter search term">
+    <button type="submit">Search</button>
+  </form>
+
+  <% if (user) { %>
+    <div class="list-controls">
+      <select id="list-select">
+        <% lists.forEach(list => { %>
+          <option value="<%= list.list_id %>">
+            <%= list.list_name %>
+          </option>
+        <% }); %>
+      </select>
+      <button id="add-to-list-button">Add to List</button>
+    </div>
+
+    <a href="/all" class="show-all-link">Show All Entries</a>
+    <a href="/favorites" class="show-favorites-link">Show Favorites</a>
+    <a href="/lists" class="show-favorites-link">My Lists</a>
+    <a href="/random" class="show-favorites-link">Random Card</a> <form action="/logout" method="POST">
+      <button type="submit">Log Out</button>
+    </form>
+  <% } %>
+</div>
+
+</html>
