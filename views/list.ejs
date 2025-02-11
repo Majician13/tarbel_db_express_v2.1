@@ -32,103 +32,49 @@
       </div>
     </div>
 
-    
+    <div class="remove-button-container">
+        <button id="remove-from-list-btn">Remove from List</button>
+    </div>
+
     <script>
-      document.getElementById('remove-from-list-button').addEventListener('click', async () => {
-        const selectedCardIds = [];
-        document.querySelectorAll('.card-checkbox:checked').forEach(checkbox => {
-          selectedCardIds.push(checkbox.dataset.cardId);
-        });
+      document.getElementById('remove-from-list-btn').addEventListener('click', async () => {
+        const cardCheckboxes = document.querySelectorAll('.card-checkbox:checked');
+        const cardIds = Array.from(cardCheckboxes).map(checkbox => checkbox.dataset.cardId);
+        const listId = <%= list.list_id %>;
 
-        if (selectedCardIds.length > 0) {
-          try {
-            const response = await fetch('/remove-cards-from-list', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                cardIds: selectedCardIds,
-                listId: <%= list.list_id %>
-              })
-            });
-
-            if (response.ok) {
-              // Optionally display a success message
-              alert('Cards removed from list successfully!');
-              // Reload the page to reflect the changes
-              location.reload();
-            } else {
-              console.error('Failed to remove cards from list');
-            }
-          } catch (error) {
-            console.error('Error removing cards from list:', error);
-          }
-        } else {
+        if (cardIds.length === 0) {
           alert('Please select at least one card to remove.');
+          return;
         }
-      });
-    </script>
-  <% } %>
 
-  
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      console.log("DOM fully loaded and parsed.");
-
-      // Get all favorite stars
-      const stars = document.querySelectorAll('.favorite-star');
-
-      // Add event listener to each star for toggling favorites
-      stars.forEach(star => {
-        star.addEventListener('click', () => {
-          const cardId = star.dataset.cardId;
-          const userId = <%= user? user.user_id: null %>;
-          console.log("STAR User ID:", userId);
-          console.log("STAR Card ID:", cardId);
-          star.classList.toggle('active'); // visually toggle star appearance
-          toggleFavorite(cardId, userId);
-        });
-      });
-
-      // Function to toggle favorite status via AJAX call
-      function toggleFavorite(cardId, userId) {
-        console.log("RESULTS.EJS User ID:", userId);
-        console.log("RESULTS.EJS Card ID:", cardId);
-        fetch('/toggle-favorite', {
+        try {
+          const response = await fetch('/remove-cards-from-list', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              cardId: cardId,
-              userId: userId
-            })
-          })
-        .then(response => {
-            if (!response.ok) {
-              console.error('Network response was not ok');
-              return;
-            }
-            return response.json();
-          })
-        .then(data => {
-            console.log("Server Response:", data);
-            const star = document.querySelector(`.favorite-star[data-card-id="${cardId}"]`);
-            if (data.isFavorite) {
-              star.style.color = 'yellow';
-            } else {
-              star.style.color = 'gray';
-            }
-          })
-        .catch(error => {
-            console.error('Error toggling favorite:', error);
+            body: JSON.stringify({ cardIds, listId })
           });
-      }
-    });
-  </script>
 
-</body>
+          if (response.ok) {
+            // Remove the cards from the UI
+            cardCheckboxes.forEach(checkbox => {
+              const cardElement = checkbox.closest('.card');
+              cardElement.remove();
+            });
+          } else {
+            const data = await response.json();
+            alert(`Failed to remove cards: ${data.error}`);
+          }
+        } catch (error) {
+          console.error('Error removing cards:', error);
+          alert('An error occurred while removing the cards.');
+        }
+      });
 
+      //... rest of your existing JavaScript...
+    </script>
+  <% } %>
+
+  </body>
 </html>

@@ -28,6 +28,12 @@
     margin-top: 20px;
   }
 
+  .remove-button-container {
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+  }
+
   #header-container {
     position: fixed;
     top: 10px;
