@@ -32,15 +32,7 @@
     <% } %>
   </div>
 
-  <div class="list-selection">
-    <label for="list-select">Select a list:</label>
-    <select id="list-select">
-      <% lists.forEach(list => { %>
-        <option value="<%= list.list_id %>"><%= list.list_name %></option>
-      <% }); %>
-    </select>
-    <button id="add-to-list-button">Add to List</button>
-  </div>
+  
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {

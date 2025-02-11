@@ -5,6 +5,29 @@
     right: 10px;
   }*/
 
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }.random-card-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Added to center the card vertically as well */
+    width: 80%; /* Adjust width as needed */
+    margin: 0 auto; /* Center the container horizontally */
+  }.card {
+    /*... your existing card styles... */
+    text-align: center; /* Added to center text content within the card */
+  }.list-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+
   #header-container {
     position: fixed;
     top: 10px;
